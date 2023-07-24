@@ -19,8 +19,8 @@ public class FilmControllerTest {
         Film film = new Film();
         film.setName("Name");
         film.setDescription("Description");
-        film.setRealiseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(Duration.ofMinutes(30));
+        film.setReleaseDate(LocalDate.of(2023, 1, 1));
+        film.setDuration(300);
         filmController.validate(film);
     }
 
@@ -43,13 +43,13 @@ public class FilmControllerTest {
 
 
         film.setDescription("Фильм с ДиКаприо");
-        film.setRealiseDate(LocalDate.of(1800, 1, 1));
+        film.setReleaseDate(LocalDate.of(1800, 1, 1));
         exception = assertThrows(exception.ValidationException.class, () -> filmController.validate(film));
         assertEquals("Дата релиза не должна быть раньше 28 декабря 1895 года", exception.getMessage());
 
 
-        film.setRealiseDate(LocalDate.of(2020, 1, 1));
-        film.setDuration(Duration.ofMinutes(-30));
+        film.setReleaseDate(LocalDate.of(2020, 1, 1));
+        film.setDuration(-30);
         exception = assertThrows(exception.ValidationException.class, () -> filmController.validate(film));
         assertEquals("Продолжительность должна быть положительной", exception.getMessage());
     }
