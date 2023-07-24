@@ -36,7 +36,7 @@ public class FilmController {
     public Film updateFIlm(@RequestBody Film film) {
         log.info("Получен PUT-запрос");
         validate(film);
-        if (!films.containsKey(film.getId())){
+        if (!films.containsKey(film.getId())) {
             throw new ValidationException("Такого id не существует");
         }
         films.remove(film.getId());
