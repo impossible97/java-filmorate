@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
-    private final HashMap<Integer ,User> users = new HashMap<>();
+    private final HashMap<Integer, User> users = new HashMap<>();
     protected int generatedId = 0;
 
     @GetMapping("/users")
@@ -33,10 +33,10 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public User updateUser (@RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         log.info("Получен PUT-запрос");
         validate(user);
-        if (!users.containsKey(user.getId())){
+        if (!users.containsKey(user.getId())) {
             throw new ValidationException("Такого id не существует");
         }
         users.remove(user.getId());

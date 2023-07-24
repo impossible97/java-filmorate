@@ -10,12 +10,12 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class FilmControllerTest {
+class FilmControllerTest {
 
     static FilmController filmController = new FilmController();
 
     @Test
-    void validateFilmOk () {
+    void validateFilmOk() {
         Film film = new Film();
         film.setName("Name");
         film.setDescription("Description");

@@ -26,9 +26,9 @@ public class FilmController {
     public Film create(@RequestBody Film film) {
         log.info("Получен POST-запрос");
         validate(film);
-        final int id = ++ generatedId;
+        final int id = ++generatedId;
         film.setId(id);
-        films.put(film.getId(),film);
+        films.put(film.getId(), film);
         return film;
     }
 
@@ -40,7 +40,7 @@ public class FilmController {
             throw new ValidationException("Такого id не существует");
         }
         films.remove(film.getId());
-        films.put(film.getId(),film);
+        films.put(film.getId(), film);
         return film;
     }
 
