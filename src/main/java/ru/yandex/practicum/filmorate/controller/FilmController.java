@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class FilmController {
 
-    private final HashMap<Integer ,Film> films = new HashMap<>();
+    private final HashMap<Integer,Film> films = new HashMap<>();
     protected int generatedId = 0;
 
     @GetMapping("/films")
@@ -29,28 +28,28 @@ public class FilmController {
         validate(film);
         final int id = ++ generatedId;
         film.setId(id);
-        films.put(film.getId(), film);
+        films.put(film.getId(),film);
         return film;
     }
 
     @PutMapping("/films")
-    public Film updateFIlm (@RequestBody Film film) {
+    public Film updateFIlm(@RequestBody Film film) {
         log.info("Получен PUT-запрос");
         validate(film);
         if (!films.containsKey(film.getId())){
             throw new ValidationException("Такого id не существует");
         }
         films.remove(film.getId());
-        films.put(film.getId(), film);
+        films.put(film.getId(),film);
         return film;
     }
 
-    public void validate (Film film) {
+    public void validate(Film film) {
         if (film.getName().isEmpty()) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Название не может быть пустым");
         }
-        if (film.getDescription().length() >  200) {
+        if (film.getDescription().length() > 200) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Максимальная длина описания 200");
         }
