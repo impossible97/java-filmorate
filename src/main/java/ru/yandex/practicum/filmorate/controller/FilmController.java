@@ -45,21 +45,20 @@ public class FilmController {
         if (!films.containsKey(film.getId())) {
             throw new ValidationException("Такого id не существует");
         }
-        films.remove(film.getId());
         films.put(film.getId(), film);
         return film;
     }
 
     public void validate(Film film) {
-        if (film.getName().isEmpty()) {
+        if (film.getName().isEmpty() || film.getName() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Название не может быть пустым");
         }
-        if (film.getDescription().length() > 200) {
+        if (film.getDescription().length() > 200 || film.getDescription() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Максимальная длина описания 200");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)) || film.getReleaseDate() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException(("Дата релиза не должна быть раньше 28 декабря 1895 года"));
         }

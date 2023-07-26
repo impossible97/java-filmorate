@@ -22,6 +22,7 @@ public class Film {
     @NotNull(message = "releaseDate не может быть null")
     private LocalDate releaseDate;
     @Positive(message = "duration должно быть положительным")
+    @NotNull
     private int duration;
 
     public Film(int id, String name, String description, LocalDate realiseDate, int duration) {

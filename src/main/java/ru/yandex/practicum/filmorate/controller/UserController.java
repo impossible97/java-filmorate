@@ -51,7 +51,7 @@ public class UserController {
     }
 
     public void validate(User user) {
-        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
+        if (user.getLogin().contains(" ") || user.getLogin().isEmpty() || user.getLogin() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
@@ -62,7 +62,7 @@ public class UserController {
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
+        if (user.getBirthday().isAfter(LocalDate.now()) || user.getBirthday() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Дата рождения пользователя не может быть в будущем");
         }
