@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @Slf4j
 public class FilmController {
-    @Valid
+
     private final HashMap<Integer,Film> films = new HashMap<>();
     protected int generatedId = 0;
 
@@ -28,7 +28,7 @@ public class FilmController {
 
     @Valid
     @PostMapping(value = "/films")
-    public Film create(@RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         log.info("Получен POST-запрос");
         validate(film);
         final int id = ++generatedId;
@@ -39,7 +39,7 @@ public class FilmController {
 
     @Valid
     @PutMapping("/films")
-    public Film updateFIlm(@RequestBody Film film) {
+    public Film updateFIlm(@Valid @RequestBody Film film) {
         log.info("Получен PUT-запрос");
         validate(film);
         if (!films.containsKey(film.getId())) {

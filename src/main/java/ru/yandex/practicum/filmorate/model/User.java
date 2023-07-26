@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Data
 public class User {
 
-    @NotNull
     private int id;
     @Email(message = "Неправильный адрес электронной почты")
     @NotEmpty(message = "Поле email не может быть пустым")
@@ -21,8 +20,6 @@ public class User {
     @NotBlank(message = "Поле login не должно быть пустым или содержать только пробельные символы")
     @NotNull
     private String login;
-    @NotBlank(message = "Поле name не должно быть пустым или содержать только пробельные символы")
-    @NotNull
     private String name;
     @NotNull(message = "Поле birthday не может быть null")
     @PastOrPresent(message = "Дата рождения не может быть в будущем")

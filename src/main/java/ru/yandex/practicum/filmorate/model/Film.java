@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Data
 public class Film {
 
-    @NotNull
     private int id;
     @NotBlank(message = "Поле name не должно быть пустым или содержать только пробельные символы")
     @NotNull

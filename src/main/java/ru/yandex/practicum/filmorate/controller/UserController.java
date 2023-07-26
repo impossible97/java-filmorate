@@ -18,7 +18,6 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
-    @Valid
     private final HashMap<Integer, User> users = new HashMap<>();
     protected int generatedId = 0;
 
@@ -29,7 +28,7 @@ public class UserController {
 
     @Valid
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         log.info("Получен POST-запрос");
         validate(user);
         final int id = ++ generatedId;
@@ -40,7 +39,7 @@ public class UserController {
 
     @Valid
     @PutMapping("/users")
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен PUT-запрос");
         validate(user);
         if (!users.containsKey(user.getId())) {
