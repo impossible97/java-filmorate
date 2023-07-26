@@ -19,8 +19,10 @@ public class User {
     @NotNull
     private String email;
     @NotBlank(message = "Поле login не должно быть пустым или содержать только пробельные символы")
+    @NotNull
     private String login;
     @NotBlank(message = "Поле name не должно быть пустым или содержать только пробельные символы")
+    @NotNull
     private String name;
     @NotNull(message = "Поле birthday не может быть null")
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
