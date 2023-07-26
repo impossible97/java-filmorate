@@ -1,9 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-import exception.ValidationException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +17,7 @@ import java.util.List;
 @RestController
 @Slf4j
 public class FilmController {
-
+    @Valid
     private final HashMap<Integer,Film> films = new HashMap<>();
     protected int generatedId = 0;
 
@@ -21,6 +26,7 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
+    @Valid
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) {
         log.info("Получен POST-запрос");
@@ -31,6 +37,7 @@ public class FilmController {
         return film;
     }
 
+    @Valid
     @PutMapping("/films")
     public Film updateFIlm(@RequestBody Film film) {
         log.info("Получен PUT-запрос");

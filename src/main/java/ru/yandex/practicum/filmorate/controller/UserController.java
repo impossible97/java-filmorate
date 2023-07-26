@@ -1,9 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-import exception.ValidationException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +18,7 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
+    @Valid
     private final HashMap<Integer, User> users = new HashMap<>();
     protected int generatedId = 0;
 
@@ -21,6 +27,7 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
+    @Valid
     @PostMapping(value = "/users")
     public User create(@RequestBody User user) {
         log.info("Получен POST-запрос");
@@ -31,6 +38,7 @@ public class UserController {
         return user;
     }
 
+    @Valid
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
         log.info("Получен PUT-запрос");
@@ -38,7 +46,6 @@ public class UserController {
         if (!users.containsKey(user.getId())) {
             throw new ValidationException("Такого id не существует");
         }
-        users.remove(user.getId());
         users.put(user.getId(), user);
         return user;
     }
@@ -48,14 +55,11 @@ public class UserController {
             log.error("Валидация не пройдена");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
-        if (!user.getEmail().contains("@")) {
+        if ((!user.getEmail().contains("@")) || user.getEmail().isEmpty() || user.getEmail() == null) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        if (user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
