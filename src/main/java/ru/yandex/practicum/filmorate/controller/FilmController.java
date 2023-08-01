@@ -20,6 +20,8 @@ public class FilmController {
 
     private final HashMap<Integer,Film> films = new HashMap<>();
     protected int generatedId = 0;
+    static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
+    static int MIN_LENGTH = 200;
 
     @GetMapping("/films")
     public List<Film> getAll() {
@@ -37,7 +39,6 @@ public class FilmController {
         return film;
     }
 
-    @Valid
     @PutMapping("/films")
     public Film updateFIlm(@Valid @RequestBody Film film) {
         log.info("Получен PUT-запрос");
@@ -50,19 +51,19 @@ public class FilmController {
     }
 
     public void validate(Film film) {
-        if (film.getName().isEmpty() || film.getName() == null) {
+        if (film.getName() == null || film.getName().isEmpty()) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Название не может быть пустым");
         }
-        if (film.getDescription().length() > 200 || film.getDescription() == null) {
+        if (film.getDescription() == null || film.getDescription().length() > MIN_LENGTH) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Максимальная длина описания 200");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)) || film.getReleaseDate() == null) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_DATE)) {
             log.error("Валидация не пройдена");
             throw new ValidationException(("Дата релиза не должна быть раньше 28 декабря 1895 года"));
         }
-        if (film.getDuration() < 0) {
+        if (film.getDuration() <= 0) {
             log.error("Валидация не пройдена");
             throw new ValidationException("Продолжительность должна быть положительной");
         }
