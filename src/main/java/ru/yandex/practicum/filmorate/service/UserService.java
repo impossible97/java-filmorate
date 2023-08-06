@@ -98,7 +98,7 @@ public class UserService {
             return users;
         }
 
-        for(Integer userId: userById.getFriends()) {
+        for (Integer userId: userById.getFriends()) {
             users.add(userStorage.getUserById(userId));
         }
 
