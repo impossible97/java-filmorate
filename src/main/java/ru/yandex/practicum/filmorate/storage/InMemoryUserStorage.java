@@ -54,6 +54,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUserById(int id) {
+        log.info("Получен GET-запрос");
         return users.get(id);
     }
 }

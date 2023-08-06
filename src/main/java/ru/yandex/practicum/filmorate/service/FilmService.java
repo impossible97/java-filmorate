@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class FilmService {
     FilmStorage filmStorage;
     UserStorage userStorage;
@@ -23,6 +25,7 @@ public class FilmService {
     }
 
     public String likeFilm(Map<String, String> pathVarsMap) {
+        log.info("Получен PUT-запрос");
         int filmId = Integer.parseInt(pathVarsMap.get("id"));
         int userId = Integer.parseInt(pathVarsMap.get("userId"));
 
@@ -35,6 +38,7 @@ public class FilmService {
     }
 
     public String deleteLike(Map<String, String> pathVarsMap) {
+        log.info("Получен DELETE-запрос");
         int filmId = Integer.parseInt(pathVarsMap.get("id"));
         int userId = Integer.parseInt(pathVarsMap.get("userId"));
 
@@ -47,13 +51,14 @@ public class FilmService {
     }
 
     public List<Film> findFilmsByLikes(Integer count) {
+        log.info("Получен GET-запрос");
         List<Film> films = filmStorage.getAll();
         Collections.sort(films, new FilmLikesComparator());
         List<Film> sortedFilms = new ArrayList<>();
         if (count > films.size()) {
             count = films.size();
         }
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             sortedFilms.add(films.get(i));
         }
 

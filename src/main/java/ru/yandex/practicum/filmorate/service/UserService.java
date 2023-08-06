@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class UserService {
 
     UserStorage userStorage;
@@ -21,6 +23,7 @@ public class UserService {
     }
 
     public String addFriend(Map<String, String> pathVarsMap) {
+        log.info("Получен PUT-запрос");
         int id = Integer.parseInt(pathVarsMap.get("id"));
         int friendId = Integer.parseInt(pathVarsMap.get("friendId"));
         User user = userStorage.getUserById(id);
@@ -33,12 +36,12 @@ public class UserService {
             throw new NullPointerException("Пользователь с таким friendId " + friendId + " не найден!");
         }
 
-        if(user.getFriends() == null) {
+        if (user.getFriends() == null) {
             user.setFriends(new HashSet<>());
         }
         user.getFriends().add(friendId);
 
-        if(friend.getFriends() == null) {
+        if (friend.getFriends() == null) {
             friend.setFriends(new HashSet<>());
         }
         friend.getFriends().add(id);
@@ -47,6 +50,7 @@ public class UserService {
     }
 
     public String deleteFriend(Map<String, String> pathVarsMap) {
+        log.info("Получен DELETE-запрос");
         int id = Integer.parseInt(pathVarsMap.get("id"));
         int friendId = Integer.parseInt(pathVarsMap.get("friendId"));
         User user = userStorage.getUserById(id);
@@ -66,6 +70,7 @@ public class UserService {
     }
 
     public List<User> findAllFriends(String id) {
+        log.info("Получен GET-запрос");
         int userId = Integer.parseInt(id);
         User user = userStorage.getUserById(userId);
         Set<Integer> friendsId = user.getFriends();
@@ -79,6 +84,7 @@ public class UserService {
     }
 
     public Set<User> findCommonFriends(Map<String, String> pathVarsMap) {
+        log.info("Получен GET-запрос");
         int id = Integer.parseInt(pathVarsMap.get("id"));
         int otherId = Integer.parseInt(pathVarsMap.get("otherId"));
 
@@ -97,7 +103,7 @@ public class UserService {
         }
 
         Set<User> others = new HashSet<>();
-        for(Integer otherUserId: otherById.getFriends()) {
+        for (Integer otherUserId: otherById.getFriends()) {
             others.add(userStorage.getUserById(otherUserId));
         }
         users.retainAll(others);
