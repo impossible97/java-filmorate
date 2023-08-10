@@ -8,6 +8,6 @@ public class FilmLikesComparator implements Comparator<Film> {
 
     @Override
     public int compare(Film film1, Film film2) {
-        return Integer.compare(film2.getLikes(), film1.getLikes());
+        return Integer.compare(film2.getLikes().size(), film1.getLikes().size());
     }
 }

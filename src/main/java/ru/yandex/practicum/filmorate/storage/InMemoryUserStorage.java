@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.storage;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final HashMap<Long, User> users = new HashMap<>();
     protected int generatedId = 0;
 
     @Override
@@ -36,25 +35,29 @@ public class InMemoryUserStorage implements UserStorage {
     public User updateUser(User user) {
         log.info("Получен PUT-запрос");
         if (!users.containsKey(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Пользователь с таким id " + user.getId() + " не найден!");
         }
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public void deleteUser(int id) {
+    public void deleteUser(long id) {
         log.info("Получен DELETE-запрос");
         if (users.containsKey(id)) {
             users.remove(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Пользователь с таким id " + id + " не найден!");
         }
     }
 
     @Override
-    public User getUserById(int id) {
+    public User getUserById(long id) {
         log.info("Получен GET-запрос");
-        return users.get(id);
+        User user = users.get(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + id + " не найден!");
+        }
+        return user;
     }
 }

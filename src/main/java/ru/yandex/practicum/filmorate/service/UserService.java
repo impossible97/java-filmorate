@@ -1,113 +1,116 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class UserService {
 
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
-    @Autowired
-    public UserService(UserStorage userStorage)     {
-        this.userStorage = userStorage;
-    }
-
-    public String addFriend(Map<String, String> pathVarsMap) {
+    public void addFriend(long id, long friendId) {
         log.info("Получен PUT-запрос");
-        int id = Integer.parseInt(pathVarsMap.get("id"));
-        int friendId = Integer.parseInt(pathVarsMap.get("friendId"));
         User user = userStorage.getUserById(id);
         if (user == null) {
-            throw new NullPointerException("Пользователь с таким id " + id + " не найден!");
+            throw new NotFoundException("Пользователь с таким id " + id + " не найден!");
         }
 
         User friend = userStorage.getUserById(friendId);
         if (friend == null) {
-            throw new NullPointerException("Пользователь с таким friendId " + friendId + " не найден!");
+            throw new NotFoundException("Пользователь с таким friendId " + friendId + " не найден!");
         }
 
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
         user.getFriends().add(friendId);
-
-        if (friend.getFriends() == null) {
-            friend.setFriends(new HashSet<>());
-        }
         friend.getFriends().add(id);
-
-        return "Пользователь " + user.getName() + " добавил в друзья пользователя " + friend.getName();
     }
 
-    public String deleteFriend(Map<String, String> pathVarsMap) {
+    public void deleteFriend(long id, long friendId) {
         log.info("Получен DELETE-запрос");
-        int id = Integer.parseInt(pathVarsMap.get("id"));
-        int friendId = Integer.parseInt(pathVarsMap.get("friendId"));
         User user = userStorage.getUserById(id);
         if (user == null) {
-            return "Пользователь с таким id " + id + " не найден!";
+            throw new NotFoundException("Пользователь с таким id " + id + " не найден!");
         }
 
         User friend = userStorage.getUserById(friendId);
         if (friend == null) {
-            return "Пользователь с таким friendId " + friendId + " не найден!";
+            throw new NotFoundException("Пользователь с таким friendId " + friendId + " не найден!");
         }
 
         user.getFriends().remove(friendId);
         friend.getFriends().remove(id);
 
-        return "Пользователь " + user.getName() + " удалил из друзей пользователя " + friend.getName();
     }
 
     public List<User> findAllFriends(String id) {
         log.info("Получен GET-запрос");
         int userId = Integer.parseInt(id);
         User user = userStorage.getUserById(userId);
-        Set<Integer> friendsId = user.getFriends();
+        Set<Long> friends = user.getFriends();
 
-        List<User> friends = new ArrayList<>();
-        for (Integer friendId : friendsId) {
-            friends.add(userStorage.getUserById(friendId));
-        }
-
-        return friends;
+        return friends.stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
-    public Set<User> findCommonFriends(Map<String, String> pathVarsMap) {
+    public Set<User> findCommonFriends(long id, long otherId) {
         log.info("Получен GET-запрос");
-        int id = Integer.parseInt(pathVarsMap.get("id"));
-        int otherId = Integer.parseInt(pathVarsMap.get("otherId"));
 
-        User userById = userStorage.getUserById(id);
-        User otherById = userStorage.getUserById(otherId);
-        // Проверить на null
+        final User userById = userStorage.getUserById(id);
+        final User otherById = userStorage.getUserById(otherId);
 
-        Set<User> users = new HashSet<>();
+        final Set<Long> friends = userById.getFriends();
+        final Set<Long> otherFriends = otherById.getFriends();
 
-        if (userById.getFriends() == null) {
-            return users;
+        return friends.stream()
+                .filter(otherFriends::contains)
+                .map(userStorage::getUserById)
+                .collect(Collectors.toSet());
+    }
+
+    public User getUser(String id) {
+        return userStorage.getUserById(Integer.parseInt(id));
+    }
+
+    public List<User> getAll() {
+        return userStorage.getAll();
+    }
+
+    public void validate(User user) {
+        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
-
-        for (Integer userId: userById.getFriends()) {
-            users.add(userStorage.getUserById(userId));
+        if (user.getEmail() == null || user.getEmail().isEmpty() || (!user.getEmail().contains("@"))) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
-
-        Set<User> others = new HashSet<>();
-        for (Integer otherUserId: otherById.getFriends()) {
-            others.add(userStorage.getUserById(otherUserId));
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
         }
-        users.retainAll(others);
+        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Дата рождения пользователя не может быть в будущем");
+        }
+    }
 
-        return users;
+    public User create(User user) {
+        validate(user);
+        return userStorage.create(user);
+    }
+
+    public User updateUser(User user) {
+        validate(user);
+        return userStorage.updateUser(user);
     }
 }

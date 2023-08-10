@@ -1,21 +1,18 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class FilmControllerTest {
+class FilmServiceTest {
 
-    static FilmController filmController =
-            new FilmController(new InMemoryFilmStorage(), new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()), new InMemoryUserStorage());
+    static FilmService filmService = new FilmService(new InMemoryFilmStorage());
 
 
     @Test
@@ -25,14 +22,14 @@ class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(300);
-        filmController.validate(film);
+        filmService.validate(film);
     }
 
     @Test
     void validateFilmFail() {
         final Film film = new Film();
         film.setName("");
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.validate(film));
+        ValidationException exception = assertThrows(ValidationException.class, () -> filmService.validate(film));
         assertEquals("Название не может быть пустым", exception.getMessage());
 
 
@@ -42,19 +39,19 @@ class FilmControllerTest {
                 " чтобы выйти замуж по расчёту. Чувства молодых людей только успевают расцвести, и даже не классовые" +
                 " различия создадут испытания влюблённым, а айсберг, вставший на пути считавшегося" +
                 " непотопляемым лайнера.");
-        exception = assertThrows(ValidationException.class, () -> filmController.validate(film));
+        exception = assertThrows(ValidationException.class, () -> filmService.validate(film));
         assertEquals("Максимальная длина описания 200", exception.getMessage());
 
 
         film.setDescription("Фильм с ДиКаприо");
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
-        exception = assertThrows(ValidationException.class, () -> filmController.validate(film));
+        exception = assertThrows(ValidationException.class, () -> filmService.validate(film));
         assertEquals("Дата релиза не должна быть раньше 28 декабря 1895 года", exception.getMessage());
 
 
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(-30);
-        exception = assertThrows(ValidationException.class, () -> filmController.validate(film));
+        exception = assertThrows(ValidationException.class, () -> filmService.validate(film));
         assertEquals("Продолжительность должна быть положительной", exception.getMessage());
     }
 }

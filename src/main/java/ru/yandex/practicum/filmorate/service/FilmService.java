@@ -1,67 +1,84 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import java.util.ArrayList;
-import java.util.Collections;
+
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class FilmService {
-    FilmStorage filmStorage;
-    UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
+    static int MIN_LENGTH = 200;
 
-    @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
-
-    public String likeFilm(Map<String, String> pathVarsMap) {
+    public void addLike(long id, long userId) {
         log.info("Получен PUT-запрос");
-        int filmId = Integer.parseInt(pathVarsMap.get("id"));
-        int userId = Integer.parseInt(pathVarsMap.get("userId"));
-
-        User user = userStorage.getUserById(userId);
-        Film film = filmStorage.getFilmById(filmId);
-        film.setLikes(film.getLikes() + 1);
-
-        return "Пользователь " + user.getName() + " поставил лайк фильму " + film.getName() +
-                ". У фильма " + film.getName() + " " + film.getLikes() + " лайков.";
+        Film film = filmStorage.getFilmById(id);
+        film.getLikes().add(userId);
     }
 
-    public String deleteLike(Map<String, String> pathVarsMap) {
+    public void deleteLike(long id, long userId) {
         log.info("Получен DELETE-запрос");
-        int filmId = Integer.parseInt(pathVarsMap.get("id"));
-        int userId = Integer.parseInt(pathVarsMap.get("userId"));
-
-        User user = userStorage.getUserById(userId);
-        Film film = filmStorage.getFilmById(filmId);
-        film.setLikes(film.getLikes() - 1);
-
-        return "Пользователь " + user.getName() + " удалил лайк фильму " + film.getName() +
-                ". У фильма " + film.getName() + " " + film.getLikes() + " лайков.";
+        Film film = filmStorage.getFilmById(id);
+        userStorage.getUserById(userId);
+        film.getLikes().remove(userId);
     }
 
     public List<Film> findFilmsByLikes(Integer count) {
         log.info("Получен GET-запрос");
         List<Film> films = filmStorage.getAll();
-        Collections.sort(films, new FilmLikesComparator());
-        List<Film> sortedFilms = new ArrayList<>();
-        if (count > films.size()) {
-            count = films.size();
-        }
-        for (int i = 0; i < count; i++) {
-            sortedFilms.add(films.get(i));
-        }
 
-        return sortedFilms;
+        return films.stream()
+                .sorted(new FilmLikesComparator())
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getAllFilms() {
+        return filmStorage.getAll();
+    }
+
+    public Film getFilm(String id) {
+        return filmStorage.getFilmById(Integer.parseInt(id));
+    }
+
+    public void validate(Film film) {
+        if (film.getName() == null || film.getName().isEmpty()) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Название не может быть пустым");
+        }
+        if (film.getDescription() == null || film.getDescription().length() > MIN_LENGTH) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Максимальная длина описания 200");
+        }
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_DATE)) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException(("Дата релиза не должна быть раньше 28 декабря 1895 года"));
+        }
+        if (film.getDuration() <= 0) {
+            log.error("Валидация не пройдена");
+            throw new ValidationException("Продолжительность должна быть положительной");
+        }
+        log.info("Валидация пройдена");
+    }
+
+    public Film createFilm(Film film) {
+        validate(film);
+        return filmStorage.create(film);
+    }
+
+    public Film updateFilm(Film film) {
+        validate(film);
+        return filmStorage.updateFIlm(film);
     }
 }

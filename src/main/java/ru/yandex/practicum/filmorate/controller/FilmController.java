@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,91 +11,51 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @Slf4j
+@AllArgsConstructor
 public class FilmController {
 
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
-    private final UserStorage userStorage;
-    static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
-    static int MIN_LENGTH = 200;
-
-    @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.filmService = filmService;
-        this.userStorage = userStorage;
-    }
 
     @GetMapping("/films")
     public List<Film> getAll() {
-        return filmStorage.getAll();
+        return filmService.getAllFilms();
     }
 
     @GetMapping("/films/{id}")
     public Film getFilm(@PathVariable String id) {
-        Film film = filmStorage.getFilmById(Integer.parseInt(id));
-        if (film == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return film;
+        return filmService.getFilm(id);
     }
 
     @PostMapping(value = "/films")
     public Film create(@Valid @RequestBody Film film) {
-        validate(film);
-        return filmStorage.create(film);
+        return filmService.createFilm(film);
     }
 
     @PutMapping("/films")
     public Film updateFIlm(@Valid @RequestBody Film film) {
-        validate(film);
-        return filmStorage.updateFIlm(film);
+        return filmService.updateFilm(film);
     }
 
-    public void validate(Film film) {
-        if (film.getName() == null || film.getName().isEmpty()) {
-            log.error("Валидация не пройдена");
-            throw new ValidationException("Название не может быть пустым");
-        }
-        if (film.getDescription() == null || film.getDescription().length() > MIN_LENGTH) {
-            log.error("Валидация не пройдена");
-            throw new ValidationException("Максимальная длина описания 200");
-        }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_DATE)) {
-            log.error("Валидация не пройдена");
-            throw new ValidationException(("Дата релиза не должна быть раньше 28 декабря 1895 года"));
-        }
-        if (film.getDuration() <= 0) {
-            log.error("Валидация не пройдена");
-            throw new ValidationException("Продолжительность должна быть положительной");
-        }
-        log.info("Валидация пройдена");
-    }
 
     @PutMapping("/films/{id}/like/{userId}")
     @ResponseBody
-    public String likeFilm(@PathVariable Map<String, String> pathVarsMap) {
-        return filmService.likeFilm(pathVarsMap);
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     @ResponseBody
-    public String deleteLike(@PathVariable Map<String, String> pathVarsMap) {
-        return filmService.deleteLike(pathVarsMap);
+    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/films/popular")
