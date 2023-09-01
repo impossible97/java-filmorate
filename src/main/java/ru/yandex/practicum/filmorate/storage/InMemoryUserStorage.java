@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
-    private final HashMap<Long, User> users = new HashMap<>();
+    private final HashMap<Integer, User> users = new HashMap<>();
     protected int generatedId = 0;
 
     @Override

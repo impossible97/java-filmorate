@@ -2,54 +2,82 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
+import ru.yandex.practicum.filmorate.dao.MPADbStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+
+    private final FilmDbStorage filmDbStorage;
+    private final MPADbStorage mpaDbStorage;
+    private final GenreDbStorage genreDbStorage;
+    private final JdbcTemplate jdbcTemplate;
     static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
     static int MIN_LENGTH = 200;
 
-    public void addLike(long id, long userId) {
+    public void addLike(int filmId, int userId) {
         log.info("Получен PUT-запрос");
-        Film film = filmStorage.getFilmById(id);
-        film.getLikes().add(userId);
+        String query = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        jdbcTemplate.update(query, filmId, userId);
     }
 
-    public void deleteLike(long id, long userId) {
+    public void deleteLike(int filmId, int userId) {
+        String idQuery = "SELECT user_id FROM likes WHERE user_id = ?";
+        try {
+            if (jdbcTemplate.queryForObject(idQuery, Integer.class, userId) == null) {
+                throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
+        }
+
         log.info("Получен DELETE-запрос");
-        Film film = filmStorage.getFilmById(id);
-        userStorage.getUserById(userId);
-        film.getLikes().remove(userId);
+        String query = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        jdbcTemplate.update(query, filmId, userId);
+    }
+
+    public List<Mpa> findAllMpa() {
+        return mpaDbStorage.findAllMpa();
+    }
+
+    public Mpa findMpaById(int mpaId) {
+        return mpaDbStorage.findMpaById(mpaId);
+    }
+
+    public Genre findGenreById(int genreId) {
+        return genreDbStorage.findGenreById(genreId);
+    }
+
+    public List<Genre> getAllGenres() {
+        return genreDbStorage.getAllGenres();
     }
 
     public List<Film> findFilmsByLikes(Integer count) {
         log.info("Получен GET-запрос");
-        List<Film> films = filmStorage.getAll();
-
-        return films.stream()
-                .sorted(new FilmLikesComparator())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmDbStorage.findTopFilms(count);
     }
 
     public List<Film> getAllFilms() {
-        return filmStorage.getAll();
+        return filmDbStorage.getAll();
     }
 
-    public Film getFilm(String id) {
-        return filmStorage.getFilmById(Integer.parseInt(id));
+    public Film getFilm(int id) {
+        return filmDbStorage.getFilmById(id);
     }
 
     public void validate(Film film) {
@@ -74,11 +102,11 @@ public class FilmService {
 
     public Film createFilm(Film film) {
         validate(film);
-        return filmStorage.create(film);
+        return filmDbStorage.createFilm(film);
     }
 
     public Film updateFilm(Film film) {
         validate(film);
-        return filmStorage.updateFIlm(film);
+        return filmDbStorage.updateFIlm(film);
     }
 }

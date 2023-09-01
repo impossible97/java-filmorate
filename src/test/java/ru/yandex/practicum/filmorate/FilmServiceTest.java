@@ -1,28 +1,41 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorageImpl;
+import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorageImpl;
+import ru.yandex.practicum.filmorate.dao.impl.MPADbStorageImpl;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FilmServiceTest {
 
-    static FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+    static FilmService filmService = new FilmService(
+            new FilmDbStorageImpl(new JdbcTemplate(), new MPADbStorageImpl(new JdbcTemplate()), new GenreDbStorageImpl(new JdbcTemplate())),
+            new MPADbStorageImpl(new JdbcTemplate()),
+            new GenreDbStorageImpl(new JdbcTemplate()),
+            new JdbcTemplate());
 
 
     @Test
     void validateFilmOk() {
         Film film = new Film();
+        film.setId(1);
         film.setName("Name");
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(300);
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
+
         filmService.validate(film);
     }
 

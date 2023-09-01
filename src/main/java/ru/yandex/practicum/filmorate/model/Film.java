@@ -9,15 +9,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Film {
 
-    private long id;
+    private Integer id;
     @NotBlank(message = "Поле name не должно быть пустым или содержать только пробельные символы")
     @NotNull
     private String name;
@@ -29,5 +28,7 @@ public class Film {
     @Positive(message = "duration должно быть положительным")
     @NotNull
     private int duration;
-    private Set<Long> likes = new HashSet<>();
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+    @NotNull
+    private Mpa mpa;
 }

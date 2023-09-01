@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final HashMap<Long,Film> films = new HashMap<>();
+    private final HashMap<Integer,Film> films = new HashMap<>();
     protected int generatedId = 0;
 
 
@@ -43,7 +43,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(long id) {
+    public void deleteFilm(int id) {
         log.info("Получен DELETE-запрос");
         if (films.containsKey(id)) {
             films.remove(id);
@@ -53,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilmById(long id) {
+    public Film getFilmById(int id) {
         log.info("Получен GET-запрос");
         Film film = films.get(id);
         if (film == null) {

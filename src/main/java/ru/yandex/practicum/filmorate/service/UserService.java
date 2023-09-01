@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -17,9 +18,30 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserStorage userStorage;
+    private final UserDbStorage userStorage;
+    private final JdbcTemplate jdbcTemplate;
 
-    public void addFriend(long id, long friendId) {
+    public List<User> findFriendsByUserId(long userId) {
+        log.info("Получен GET-запрос");
+        String query = "SELECT friend_id FROM friendship WHERE user_id = ?";
+        List<Integer> friendsId = jdbcTemplate.queryForList(query, Integer.class, userId);
+
+        return friendsId.stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    public Set<User> findCommonFriends(int id, int otherId) {
+        log.info("Получен GET-запрос");
+
+        final List<User> friends = findFriendsByUserId(id);
+        final List<User> otherFriends = findFriendsByUserId(otherId);
+        return friends.stream()
+                .filter(otherFriends::contains)
+                .collect(Collectors.toSet());
+    }
+
+    public void addFriend(Integer id, Integer friendId) {
         log.info("Получен PUT-запрос");
         User user = userStorage.getUserById(id);
         if (user == null) {
@@ -31,11 +53,12 @@ public class UserService {
             throw new NotFoundException("Пользователь с таким friendId " + friendId + " не найден!");
         }
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
+        String query = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
+
+        jdbcTemplate.update(query, id, friendId);
     }
 
-    public void deleteFriend(long id, long friendId) {
+    public void deleteFriend(Integer id, Integer friendId) {
         log.info("Получен DELETE-запрос");
         User user = userStorage.getUserById(id);
         if (user == null) {
@@ -47,39 +70,12 @@ public class UserService {
             throw new NotFoundException("Пользователь с таким friendId " + friendId + " не найден!");
         }
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(id);
-
+        String query = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(query, id, friendId);
     }
 
-    public List<User> findAllFriends(String id) {
-        log.info("Получен GET-запрос");
-        int userId = Integer.parseInt(id);
-        User user = userStorage.getUserById(userId);
-        Set<Long> friends = user.getFriends();
-
-        return friends.stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
-    }
-
-    public Set<User> findCommonFriends(long id, long otherId) {
-        log.info("Получен GET-запрос");
-
-        final User userById = userStorage.getUserById(id);
-        final User otherById = userStorage.getUserById(otherId);
-
-        final Set<Long> friends = userById.getFriends();
-        final Set<Long> otherFriends = otherById.getFriends();
-
-        return friends.stream()
-                .filter(otherFriends::contains)
-                .map(userStorage::getUserById)
-                .collect(Collectors.toSet());
-    }
-
-    public User getUser(String id) {
-        return userStorage.getUserById(Integer.parseInt(id));
+    public User getUser(int id) {
+        return userStorage.getUserById(id);
     }
 
     public List<User> getAll() {
@@ -106,7 +102,7 @@ public class UserService {
 
     public User create(User user) {
         validate(user);
-        return userStorage.create(user);
+        return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
