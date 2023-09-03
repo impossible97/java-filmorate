@@ -112,14 +112,6 @@ public class UserDbStorageImpl implements UserDbStorage {
 
     @Override
     public void deleteUser(Integer userId) {
-        String idQuery = "SELECT id FROM users WHERE id = ?";
-        try {
-            if (jdbcTemplate.queryForObject(idQuery, Integer.class, userId) == null) {
-                throw new NotFoundException("Фильм с id " + userId + " не найден в БД films");
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Фильм с id " + userId + " не найден в БД films");
-        }
 
         log.info("Получен DELETE-запрос");
         String query = "DELETE FROM users WHERE id = ?";

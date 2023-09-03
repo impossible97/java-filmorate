@@ -9,9 +9,4 @@ public interface MPADbStorage {
     List<Mpa> findAllMpa();
 
     Mpa findMpaById(Integer mpaId);
-
-    void addMpa(int mpaId, Integer filmId);
-
-    void deleteMpa(Integer filmId);
-
 }

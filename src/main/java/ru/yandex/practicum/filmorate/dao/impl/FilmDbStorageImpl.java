@@ -97,7 +97,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         jdbcTemplate.update(creator, keyHolder);
         Integer id = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(id);
-        mpaDbStorage.addMpa(film.getMpa().getId(), film.getId());
         genreDbStorage.addGenre(film.getId(), film.getGenres());
 
         return film;
@@ -106,8 +105,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     @Override
     public Film updateFIlm(Film film) {
         log.info("Получен PUT-запрос");
-        mpaDbStorage.deleteMpa(film.getId());
-        mpaDbStorage.addMpa(film.getMpa().getId(), film.getId());
         genreDbStorage.deleteGenre(film.getId());
         genreDbStorage.addGenre(film.getId(), film.getGenres());
         String idQuery = "SELECT id FROM films WHERE id = ?";
@@ -135,15 +132,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     @Override
     public void deleteFilm(Integer filmId) {
         log.info("Получен DELETE-запрос");
-        String idQuery = "SELECT id FROM films WHERE id = ?";
-        try {
-            if (jdbcTemplate.queryForObject(idQuery, Integer.class, filmId) == null) {
-                throw new NotFoundException("Фильм с id " + filmId + " не найден в БД films");
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Фильм с id " + filmId + " не найден в БД films");
-        }
-
         String query = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(query, filmId);
     }

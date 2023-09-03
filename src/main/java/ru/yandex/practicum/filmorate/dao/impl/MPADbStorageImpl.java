@@ -49,25 +49,4 @@ public class MPADbStorageImpl implements MPADbStorage {
             throw new NotFoundException("MPA с id " + mpaId + " не найден в БД MPA_names");
         }
     }
-
-    @Override
-    public void addMpa(int mpaId, Integer filmId) {
-        String query = "INSERT INTO MPA (mpa_id, film_id) VALUES (?, ?)";
-        jdbcTemplate.update(query, mpaId, filmId);
-    }
-
-    @Override
-    public void deleteMpa(Integer filmId) {
-        String idQuery = "SELECT film_id FROM MPA WHERE film_id = ?";
-        try {
-            if (jdbcTemplate.queryForObject(idQuery, Integer.class, filmId) == null) {
-                throw new NotFoundException("Фильм с id " + filmId + " не найден в БД MPA");
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Фильм с id " + filmId + " не найден в БД MPA");
-        }
-        String query = "DELETE FROM MPA WHERE film_id = ?";
-        jdbcTemplate.update(query, filmId);
-
-    }
 }

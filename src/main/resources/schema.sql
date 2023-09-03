@@ -2,8 +2,14 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(50),
-    login VARCHAR(50) NOT NULL,
+    login VARCHAR(50) NOT NULL UNIQUE,
     birthday DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS MPA_names (
+    mpa_id INTEGER PRIMARY KEY,
+    name VARCHAR(50),
+    CONSTRAINT MPA_PK PRIMARY KEY (mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS friendship (
@@ -20,7 +26,8 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR(200),
     releaseDate DATE,
     duration INTEGER,
-    rating_id INTEGER UNIQUE
+    rating_id INTEGER UNIQUE,
+    FOREIGN KEY (rating_id) REFERENCES MPA_names(mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS likes (
@@ -41,14 +48,3 @@ CREATE TABLE IF NOT EXISTS film_genres (
     FOREIGN KEY (genre_id) REFERENCES genre_name(genre_id)
 );
 
-CREATE TABLE IF NOT EXISTS MPA_names (
-    mpa_id INTEGER PRIMARY KEY,
-    name VARCHAR(50)
-);
-
-CREATE TABLE IF NOT EXISTS MPA (
-    film_id INTEGER,
-    mpa_id INTEGER,
-    FOREIGN KEY (film_id) REFERENCES films(id),
-    FOREIGN KEY (mpa_id) REFERENCES MPA_names(mpa_id)
-);

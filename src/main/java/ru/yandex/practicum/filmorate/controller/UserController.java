@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Set;
 public class UserController {
 
     private final UserService userService;
+    private final FriendService friendService;
 
     @GetMapping("/users")
     public List<User> getAll() {
@@ -47,25 +49,25 @@ public class UserController {
     @PutMapping("/users/{id}/friends/{friendId}")
     @ResponseBody
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
-        userService.addFriend(id, friendId);
+        friendService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     @ResponseBody
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
-        userService.deleteFriend(id, friendId);
+        friendService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/users/{id}/friends")
     @ResponseBody
     public List<User> findAllFriends(@PathVariable int id) {
-        return userService.findFriendsByUserId(id);
+        return friendService.findFriendsByUserId(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     @ResponseBody
     public Set<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        return userService.findCommonFriends(id, otherId);
+        return friendService.findCommonFriends(id, otherId);
     }
 
 }
