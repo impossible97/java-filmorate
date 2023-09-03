@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserServiceTest {
 
-    static UserService userService = new UserService(new UserDbStorageImpl(new JdbcTemplate()), new JdbcTemplate());
+    static UserService userService = new UserService(new UserDbStorageImpl(new JdbcTemplate()));
 
     @Test
     void validateUserOk() {
