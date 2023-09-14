@@ -1,11 +1,8 @@
 package ru.yandex.practicum.filmorate.dao.entity;
 
 import lombok.Data;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Entity
