@@ -16,11 +16,7 @@ import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,7 +90,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                         "AND fllk2.user_id = ? " +
                         "GROUP BY f.id " +
                         "ORDER BY rate;";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), userId,friendId);
+        return jdbcTemplate.query(sql, new FilmRowMapper(), userId, friendId);
     }
 
     @Override
@@ -161,7 +157,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "GROUP BY f.id " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
-            return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
+        return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
     }
 
     private class FilmRowMapper implements RowMapper<Film> {
