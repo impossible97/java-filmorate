@@ -82,13 +82,13 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         String sql =
                 "SELECT fi.*,MPA_names.name,MPA_names.mpa_id,  " +
                         "COUNT(fllk1.film_id) rate " +
-                        "FROM films f " +
-                        "JOIN MPA_names  ON f.rating_id = MPA_names.mpa_id " +
-                        "JOIN likes fllk1 ON f.id = fllk1.film_id " +
-                        "JOIN likes fllk2 ON f.id = fllk2.film_id " +
+                        "FROM films fi " +
+                        "JOIN MPA_names  ON fi.rating_id = MPA_names.mpa_id " +
+                        "JOIN likes fllk1 ON fi.id = fllk1.film_id " +
+                        "JOIN likes fllk2 ON fi.id = fllk2.film_id " +
                         "WHERE fllk1.user_id = ? " +
                         "AND fllk2.user_id = ? " +
-                        "GROUP BY f.id " +
+                        "GROUP BY fi.id " +
                         "ORDER BY rate;";
         return jdbcTemplate.query(sql, new FilmRowMapper(), userId, friendId);
     }
