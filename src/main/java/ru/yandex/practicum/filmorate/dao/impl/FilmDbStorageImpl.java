@@ -83,7 +83,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "SELECT fi.*,MPA_names.name,MPA_names.mpa_id,  " +
                         "COUNT(fllk1.film_id) rate " +
                         "FROM films f " +
-                        "JOIN MPA_names  ON fi.rating_id = MPA_names.mpa_id " +
+                        "JOIN MPA_names  ON f.rating_id = MPA_names.mpa_id " +
                         "JOIN likes fllk1 ON f.id = fllk1.film_id " +
                         "JOIN likes fllk2 ON f.id = fllk2.film_id " +
                         "WHERE fllk1.user_id = ? " +
