@@ -81,6 +81,23 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        log.info("Получен GET-запрос");
+        String sql =
+                "SELECT fi.*,MPA_names.name,MPA_names.mpa_id,  " +
+                        "COUNT(fllk1.film_id) rate " +
+                        "FROM films f " +
+                        "JOIN MPA_names  ON fi.rating_id = MPA_names.mpa_id " +
+                        "JOIN likes fllk1 ON f.id = fllk1.film_id " +
+                        "JOIN likes fllk2 ON f.id = fllk2.film_id " +
+                        "WHERE fllk1.user_id = ? " +
+                        "AND fllk2.user_id = ? " +
+                        "GROUP BY f.id " +
+                        "ORDER BY rate;";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), userId,friendId);
+    }
+
+    @Override
     public Film createFilm(Film film) {
         log.info("Получен POST-запрос");
         String query = "INSERT INTO films (name, description, releaseDate, duration, rating_id) VALUES (?, ?, ?, ?, ?)";
