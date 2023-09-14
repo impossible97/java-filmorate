@@ -109,4 +109,8 @@ public class FilmService {
         validate(film);
         return filmDbStorage.updateFIlm(film);
     }
+
+    public void deleteFilm(int id) {
+        filmDbStorage.deleteFilm(id);
+    }
 }

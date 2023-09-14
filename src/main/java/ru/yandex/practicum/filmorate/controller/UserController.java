@@ -70,4 +70,10 @@ public class UserController {
         return friendService.findCommonFriends(id, otherId);
     }
 
+    @DeleteMapping("/users/{id}")
+    @ResponseBody
+    public void deleteUser(@PathVariable int id) {
+        friendService.deleteUser(id);
+        userService.deleteUser(id);
+    }
 }

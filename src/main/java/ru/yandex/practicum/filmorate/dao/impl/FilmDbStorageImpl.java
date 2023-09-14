@@ -132,6 +132,13 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     @Override
     public void deleteFilm(Integer filmId) {
         log.info("Получен DELETE-запрос");
+
+        String queryForGenre = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(queryForGenre, filmId);
+
+        String queryForLikes = "DELETE FROM likes WHERE film_id = ?";
+        jdbcTemplate.update(queryForLikes, filmId);
+
         String query = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(query, filmId);
     }

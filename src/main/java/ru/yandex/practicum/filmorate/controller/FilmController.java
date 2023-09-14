@@ -44,7 +44,6 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-
     @PutMapping("/films/{id}/like/{userId}")
     @ResponseBody
     public void addLike(@PathVariable int id, @PathVariable int userId) {
@@ -61,5 +60,11 @@ public class FilmController {
     @ResponseBody
     public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count) {
         return filmService.findFilmsByLikes(count);
+    }
+
+    @DeleteMapping("/films/{id}")
+    @ResponseBody
+    public void deleteFilm(@PathVariable int id) {
+        filmService.deleteFilm(id);
     }
 }

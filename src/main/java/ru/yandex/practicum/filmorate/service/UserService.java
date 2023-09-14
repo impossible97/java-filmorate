@@ -51,4 +51,8 @@ public class UserService {
         validate(user);
         return userStorage.updateUser(user);
     }
+
+    public void deleteUser(int id) {
+        userStorage.deleteUser(id);
+    }
 }

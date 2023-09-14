@@ -20,8 +20,12 @@ public class FriendService {
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public List<User> findFriendsByUserId(long userId) {
+    public List<User> findFriendsByUserId(int userId) {
         log.info("Получен GET-запрос");
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + userId + " не найден!");
+        }
         String query = "SELECT friend_id FROM friendship WHERE user_id = ?";
         List<Integer> friendsId = jdbcTemplate.queryForList(query, Integer.class, userId);
 
@@ -71,5 +75,12 @@ public class FriendService {
 
         String query = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(query, id, friendId);
+    }
+
+    public void deleteUser(int id) {
+        String deleteFriendsQuery = "DELETE FROM friendship WHERE friend_id = ?";
+        String deleteUserQuery = "DELETE FROM friendship WHERE user_id = ?";
+        jdbcTemplate.update(deleteFriendsQuery, id);
+        jdbcTemplate.update(deleteUserQuery, id);
     }
 }
