@@ -10,12 +10,12 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import java.sql.*;
 import java.util.List;
@@ -30,7 +30,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MPADbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
-    private final DirectorService directorService;
+    private final DirectorDbStorage directorDbStorage;
 
     @Override
     public List<Film> getAll() {
@@ -46,7 +46,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
-            film.setDirectors(directorService.getAllDirectorsByFilmId(filmId));
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(filmId));
             return film;
         });
     }
@@ -73,7 +73,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
-            film.setDirectors(directorService.getAllDirectorsByFilmId(film.getId()));
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(film.getId()));
             return film;
         };
         return jdbcTemplate.queryForObject(query, rowMapper, id);
@@ -97,7 +97,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         Integer id = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(id);
         genreDbStorage.addGenre(film.getId(), film.getGenres());
-        directorService.addDirectorsToFilm(film.getId(), film.getDirectors());
+        directorDbStorage.addDirectorsToFilm(film.getId(), film.getDirectors());
 
         return film;
     }
@@ -126,8 +126,8 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 film.getMpa().getId(),
                 film.getId());
         film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
-        directorService.deleteDirectorsByFilmId(film.getId());
-        directorService.addDirectorsToFilm(film.getId(), film.getDirectors());
+        directorDbStorage.deleteDirectorsFromFilm(film.getId(), null);
+        directorDbStorage.addDirectorsToFilm(film.getId(), film.getDirectors());
         return film;
     }
 

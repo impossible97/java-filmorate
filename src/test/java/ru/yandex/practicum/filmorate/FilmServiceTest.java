@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorageImpl;
@@ -15,12 +16,14 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(
         properties = {
-                "spring.datasource.url=jdbc:h2:mem:filmorate-test;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS filmorate;"
+                "spring.datasource.url=jdbc:h2:mem:filmorate-test;MODE=PostgreSQL;"
         }
 )
 class FilmServiceTest {
@@ -33,11 +36,16 @@ class FilmServiceTest {
             new JdbcTemplate());
 
 
-    @Autowired private JdbcTemplate jdbcTemplate;
-    @Autowired private MPADbStorage mpaDbStorage;
-    @Autowired private GenreDbStorage genreDbStorage;
-    @Autowired private FilmDbStorageImpl filmDbStorage;
-    @Autowired private FilmService myFilmService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private MPADbStorage mpaDbStorage;
+    @Autowired
+    private GenreDbStorage genreDbStorage;
+    @Autowired
+    private FilmDbStorageImpl filmDbStorage;
+    @Autowired
+    private FilmService myFilmService;
 
     private static final Integer FILM_ID = 1;
 
@@ -57,6 +65,7 @@ class FilmServiceTest {
     }
 
     @Test
+    @Sql({"/data-test.sql"})
     void createFilmSucceed() {
         Film expected = new Film();
         expected.setId(FILM_ID);
@@ -64,9 +73,8 @@ class FilmServiceTest {
         expected.setDescription("Description");
         expected.setReleaseDate(LocalDate.of(2023, 1, 1));
         expected.setDuration(300);
-        Mpa mpa = new Mpa();
-        mpa.setId(1);
-        expected.setMpa(mpa);
+        expected.setMpa(mpaDbStorage.findMpaById(1000));
+        expected.setGenres(new LinkedHashSet<>(List.of(genreDbStorage.getAllGenres().get(0))));
 
         myFilmService.createFilm(expected);
         Film found = myFilmService.getFilm(FILM_ID);
@@ -75,6 +83,8 @@ class FilmServiceTest {
         assertEquals(expected.getDescription(), found.getDescription());
         assertEquals(expected.getDuration(), found.getDuration());
         assertEquals(expected.getReleaseDate(), found.getReleaseDate());
+        assertEquals(1, found.getGenres().size());
+        assertEquals(1000, found.getMpa().getId());
     }
 
     @Test
