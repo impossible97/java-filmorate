@@ -144,7 +144,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "GROUP BY f.id " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
-            return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
+        return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
     }
 
     private class FilmRowMapper implements RowMapper<Film> {
@@ -160,5 +160,28 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
             return film;
         }
+    }
+
+    @Override
+    public List<Film> findRecommendationsFilms(int id) {
+        log.info("Получен GET-запрос");
+        String sql = "SELECT f.*\n" +
+                "FROM likes l\n" +
+                "JOIN films f ON f.id = l.film_id\n" +
+                "WHERE l.user_id = (\n" +   //Ищем нужного пользователя
+                "    SELECT l2.user_id\n" +
+                "    FROM likes l1\n" +
+                "    JOIN likes l2 ON l1.film_id = l2.film_id\n" +
+                "AND l1.user_id != l2.user_id\n" +
+                "    WHERE l1.user_id = ?\n" +
+                "    GROUP BY l1.user_id, l2.user_id\n" +
+                "    ORDER BY COUNT(*) DESC\n" +
+                "    LIMIT 1)\n" +
+                "AND l.film_id NOT IN (\n" + // убираем фильмы лайкнутые искомым пользователем
+                "    SELECT film_id\n" +
+                "    FROM likes\n" +
+                "    WHERE user_id = ?\n" +
+                ");";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), id, id);
     }
 }
