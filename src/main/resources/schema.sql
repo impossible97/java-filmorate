@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR(200),
     releaseDate DATE,
     duration INTEGER,
-    rating_id INTEGER UNIQUE,
+    rating_id INTEGER,
     FOREIGN KEY (rating_id) REFERENCES MPA_names(mpa_id)
 );
 
