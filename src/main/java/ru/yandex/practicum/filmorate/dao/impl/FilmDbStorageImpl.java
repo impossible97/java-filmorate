@@ -177,7 +177,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "    GROUP BY l1.user_id, l2.user_id\n" +
                 "    ORDER BY COUNT(*) DESC\n" +
                 "    LIMIT 1)\n" +
-                "AND l.film_id NOT IN (\n" +
+                "AND l.film_id NOT IN (\n" + // убираем фильмы лайкнутые искомым пользователем
                 "    SELECT film_id\n" +
                 "    FROM likes\n" +
                 "    WHERE user_id = ?\n" +
