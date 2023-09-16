@@ -174,7 +174,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "  \t\t  \tgroup by l1.user_id, l2.user_id \n" +
                 "  \t\t  \torder by count(*)\n" +
                 "  \t\t  \tdesc limit 1) \n" +
-                "  \t\t  \tand l.film_id not in (select film_id from likes where user_id = 2)";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), id);
+                "  \t\t  \tand l.film_id not in (select film_id from likes where user_id = ?)";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), id,id);
     }
 }
