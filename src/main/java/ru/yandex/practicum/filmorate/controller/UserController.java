@@ -72,6 +72,7 @@ public class UserController {
     public Set<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return friendService.findCommonFriends(id, otherId);
     }
+
     @GetMapping("/users/{id}/recommendations")
     @ResponseBody
     public List<Film> findRecommendationsFilms(@PathVariable int id) {

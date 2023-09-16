@@ -23,9 +23,9 @@ public class GenreDbStorageImpl implements GenreDbStorage {
 
     @Override
     public void addGenre(Integer filmId, LinkedHashSet<Genre> genres) {
-            String query = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
-            genres.forEach(genre -> jdbcTemplate.update(query, filmId, genre.getId())
-            );
+        String query = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+        genres.forEach(genre -> jdbcTemplate.update(query, filmId, genre.getId())
+        );
     }
 
     @Override

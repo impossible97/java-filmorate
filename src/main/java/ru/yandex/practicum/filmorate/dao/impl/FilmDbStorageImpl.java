@@ -182,6 +182,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "    FROM likes\n" +
                 "    WHERE user_id = ?\n" +
                 ");";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), id,id);
+        return jdbcTemplate.query(sql, new FilmRowMapper(), id, id);
     }
 }
