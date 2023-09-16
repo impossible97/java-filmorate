@@ -170,7 +170,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "  \t\t  \twhere l.user_id = (select l2.user_id from likes l1\n" +
                 "  \t\t  \tjoin likes l2 ON l1.film_id = l2.film_id \n" +
                 "  \t\t  \tand l1.user_id != l2.user_id\n" +
-                "  \t\t  \twhere l1.user_id = 2\n" +
+                "  \t\t  \twhere l1.user_id = ?\n" +
                 "  \t\t  \tgroup by l1.user_id, l2.user_id \n" +
                 "  \t\t  \torder by count(*)\n" +
                 "  \t\t  \tdesc limit 1) \n" +
