@@ -165,16 +165,23 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     @Override
     public List<Film> findRecommendationsFilms(int id) {
         log.info("Получен GET-запрос");
-        String sql = "  \t\t  \tselect f.* from likes l \n" +
-                "  \t\t  \tjoin films f on f.id = l.film_id\n" +
-                "  \t\t  \twhere l.user_id = (select l2.user_id from likes l1\n" +
-                "  \t\t  \tjoin likes l2 ON l1.film_id = l2.film_id \n" +
-                "  \t\t  \tand l1.user_id != l2.user_id\n" +
-                "  \t\t  \twhere l1.user_id = ?\n" +
-                "  \t\t  \tgroup by l1.user_id, l2.user_id \n" +
-                "  \t\t  \torder by count(*)\n" +
-                "  \t\t  \tdesc limit 1) \n" +
-                "  \t\t  \tand l.film_id not in (select film_id from likes where user_id = ?)";
+        String sql = "SELECT f.*\n" +
+                "FROM likes l\n" +
+                "JOIN films f ON f.id = l.film_id\n" +
+                "WHERE l.user_id = (\n" +   //Ищем нужного пользователя
+                "    SELECT l2.user_id\n" +
+                "    FROM likes l1\n" +
+                "    JOIN likes l2 ON l1.film_id = l2.film_id\n" +
+                "AND l1.user_id != l2.user_id\n" +
+                "    WHERE l1.user_id = ?\n" +
+                "    GROUP BY l1.user_id, l2.user_id\n" +
+                "    ORDER BY COUNT(*) DESC\n" +
+                "    LIMIT 1)\n" +
+                "AND l.film_id NOT IN (\n" +
+                "    SELECT film_id\n" +
+                "    FROM likes\n" +
+                "    WHERE user_id = ?\n" +
+                ");";
         return jdbcTemplate.query(sql, new FilmRowMapper(), id,id);
     }
 }
