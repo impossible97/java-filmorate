@@ -111,7 +111,6 @@ public class FilmService {
     }
 
     public List<Film> findRecommendationsFilms(int id) {
-        log.info("Получен GET-запрос");
         return filmDbStorage.findRecommendationsFilms(id);
     }
 }
