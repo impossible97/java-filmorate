@@ -25,9 +25,10 @@ CREATE TABLE IF NOT EXISTS films (
     name VARCHAR(50),
     description VARCHAR(200),
     releaseDate DATE,
-    duration INTEGER,
-    rating_id INTEGER,
-    FOREIGN KEY (rating_id) REFERENCES MPA_names(mpa_id)
+    duration    INTEGER,
+    rating_id   INTEGER,
+    CONSTRAINT films_PK PRIMARY KEY (id),
+    FOREIGN KEY (rating_id) REFERENCES MPA_names (mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS likes (
