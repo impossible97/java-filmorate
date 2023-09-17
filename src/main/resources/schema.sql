@@ -48,3 +48,21 @@ CREATE TABLE IF NOT EXISTS film_genres (
     FOREIGN KEY (genre_id) REFERENCES genre_name(genre_id)
 );
 
+CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    content VARCHAR,
+    is_positive VARCHAR,
+    user_id INTEGER,
+    film_id INTEGER,
+    useful INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reviews_like (
+    review_id INTEGER REFERENCES reviews(id) ON DELETE CASCADE,
+    user_id_like INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_dislike (
+    review_id INTEGER REFERENCES reviews(id) ON DELETE CASCADE,
+    user_id_dislike INTEGER REFERENCES users(id)
+);
