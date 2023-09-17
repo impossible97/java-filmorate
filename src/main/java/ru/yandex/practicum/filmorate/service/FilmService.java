@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -108,5 +109,18 @@ public class FilmService {
     public Film updateFilm(Film film) {
         validate(film);
         return filmDbStorage.updateFIlm(film);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        switch (by) {
+            case "title":
+                return filmDbStorage.searchByTitle(query);
+            case "director":
+                return filmDbStorage.searchByDirector(query);
+            case "title,director":
+                return filmDbStorage.searchByTitleAndDirector(query);
+            default:
+                return new ArrayList<>();
+        }
     }
 }

@@ -160,7 +160,50 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(film.getId()));
             return film;
         }
+    }
+
+    @Override
+    public List<Film> searchByTitle(String title) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.name ILIKE ? " +
+                "GROUP BY f.id " +
+                "ORDER BY likes_count DESC";
+        String likeQuery = "%" + title + "%";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery);
+    }
+
+    @Override
+    public List<Film> searchByDirector(String director) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.id IN " +
+                "(SELECT film_id FROM films_to_directors fd " +
+                "JOIN director d ON fd.director_id = d.id " +
+                "WHERE d.name ILIKE ?) " +
+                "GROUP BY f.id, f.name " +
+                "ORDER BY likes_count DESC, f.name";
+        String likeQuery = "%" + director + "%";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery);
+    }
+
+    @Override
+    public List<Film> searchByTitleAndDirector(String query) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.name ILIKE ? OR f.id IN " +
+                "(SELECT film_id FROM films_to_directors fd " +
+                "JOIN director d ON fd.director_id = d.id " +
+                "WHERE d.name ILIKE ?) " +
+                "GROUP BY f.id, f.name " +
+                "ORDER BY likes_count DESC, f.name";
+        String likeQuery = "%" + query + "%";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery, likeQuery);
     }
 }

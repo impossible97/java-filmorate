@@ -62,4 +62,9 @@ public class FilmController {
     public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count) {
         return filmService.findFilmsByLikes(count);
     }
+
+    @GetMapping("/films/search")
+    public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
 }

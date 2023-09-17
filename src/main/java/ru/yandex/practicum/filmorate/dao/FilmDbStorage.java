@@ -18,4 +18,10 @@ public interface FilmDbStorage {
     List<Film> findTopFilms(int limit);
 
     Film getFilmById(Integer id);
+
+    List<Film> searchByTitle(String query);
+
+    List<Film> searchByDirector(String query);
+
+    List<Film> searchByTitleAndDirector(String query);
 }
