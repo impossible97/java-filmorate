@@ -29,6 +29,7 @@ public class ReviewController {
         log.info("PUT /reviews");
         return reviewService.updateReview(review);
     }
+
     @DeleteMapping("/reviews/{id}")
     public void deleteReview(@PathVariable int id) {
         log.info("DELETE /reviews/" + id);
