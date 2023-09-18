@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.dao.EventDbStorage;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.validator.EventValidator;
 
 @Service
 @Slf4j
@@ -29,6 +28,7 @@ public class EventService {
             event.setTimestamp(Instant.now());
         }
     }
+
     private void validateCreate(final Event event) throws ValidationException {
         if (event.getEventId() != null) {
             throw new ValidationException("Id should be null");
