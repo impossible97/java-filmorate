@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -28,6 +30,7 @@ public class UserController {
     private final UserService userService;
     private final FriendService friendService;
     private final FilmService filmService;
+    private final EventService eventService;
 
     @GetMapping("/users")
     public List<User> getAll() {
@@ -84,4 +87,8 @@ public class UserController {
     public void deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
     }
+
+    @GetMapping("/users/{id}/feed")
+    @ResponseBody
+    public List<Event> getFeed(@PathVariable int id) { return eventService.getEvents(id); }
 }
