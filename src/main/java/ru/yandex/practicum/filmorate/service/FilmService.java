@@ -109,4 +109,8 @@ public class FilmService {
         validate(film);
         return filmDbStorage.updateFIlm(film);
     }
+
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
+    }
 }
