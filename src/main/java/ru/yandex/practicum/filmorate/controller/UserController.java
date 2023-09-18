@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Event;
@@ -90,5 +91,5 @@ public class UserController {
 
     @GetMapping("/users/{id}/feed")
     @ResponseBody
-    public List<Event> getFeed(@PathVariable int id) { return eventService.getEvents(id); }
+    public List<Event> getFeed(@PathVariable int id) { return eventService.getFeed(id); }
 }
