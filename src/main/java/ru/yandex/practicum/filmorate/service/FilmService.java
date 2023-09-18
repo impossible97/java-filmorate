@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -72,8 +73,17 @@ public class FilmService {
         return filmDbStorage.findCommonFilms(userId, friendId);
     }
 
-    public List<Film> findFilmsByLikes(Integer count) {
+    public List<Film> findFilmsByLikes(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
         log.info("Выполняется вывод самых популярных фильмов");
+        if (genreId.isPresent() && year.isPresent()) {
+            return filmDbStorage.findTopFilms(count, genreId.get(), year.get());
+        }
+        if (genreId.isPresent()) {
+            return filmDbStorage.findTopFilmsByGenre(count, genreId.get());
+        }
+        if (year.isPresent()) {
+            return filmDbStorage.findTopFilmsByYear(count, year.get());
+        }
         return filmDbStorage.findTopFilms(count);
     }
 
