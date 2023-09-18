@@ -76,6 +76,6 @@ public class UserController {
     @GetMapping("/users/{id}/recommendations")
     @ResponseBody
     public List<Film> findRecommendationsFilms(@PathVariable int id) {
-        return filmService.findRecommendationsFilms(id);
+        return filmService.findRecommendedFilms(id);
     }
 }

@@ -110,7 +110,7 @@ public class FilmService {
         return filmDbStorage.updateFIlm(film);
     }
 
-    public List<Film> findRecommendationsFilms(int id) {
-        return filmDbStorage.findRecommendationsFilms(id);
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
     }
 }
