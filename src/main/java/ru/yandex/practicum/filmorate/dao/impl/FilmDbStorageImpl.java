@@ -150,7 +150,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "GROUP BY f.id " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sql, filmRowMapper, limit);
+        return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
     }
 
     private class FilmRowMapper implements RowMapper<Film> {
