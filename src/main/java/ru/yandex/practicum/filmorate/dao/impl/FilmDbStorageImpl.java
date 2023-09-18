@@ -84,14 +84,14 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     public List<Film> findCommonFilms(int userId, int friendId) {
         log.info("Получен GET-запрос");
         String sql =
-                "SELECT f.*,\n" +
-                        "COUNT(*) AS like_count\n" +
-                        "FROM likes l\n" +
-                        "JOIN films f ON f.id = l.film_id\n" +
-                        "WHERE l.user_id IN (?, ?)\n" +
-                        "GROUP BY f.id\n" +
-                        "HAVING COUNT(DISTINCT l.user_id) = 2\n" +
-                        "ORDER BY like_count DESC;";
+                "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, f.RATING_ID," +
+                        " COUNT(*) AS like_count" +
+                        " FROM likes l" +
+                        " JOIN films f ON f.id = l.film_id" +
+                        " WHERE l.user_id IN (?, ?)" +
+                        " GROUP BY f.id" +
+                        " HAVING COUNT(DISTINCT l.user_id) = 2" +
+                        " ORDER BY like_count DESC;";
         return jdbcTemplate.query(sql, new FilmRowMapper(), userId, friendId);
     }
 
