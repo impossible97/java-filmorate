@@ -10,17 +10,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +30,10 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MPADbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final DirectorDbStorage directorDbStorage;
+
+    private final FilmRowMapper filmRowMapper = new FilmRowMapper();
+
 
     @Override
     public List<Film> getAll() {
@@ -40,17 +41,19 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         String sqlRow = "SELECT * FROM films";
         return jdbcTemplate.query(sqlRow, (rs, rowNum) -> {
             Film film = new Film();
-            film.setId(rs.getInt("id"));
+            int filmId = rs.getInt("id");
+            film.setId(filmId);
             film.setName(rs.getString("name"));
             film.setDescription(rs.getString("description"));
             film.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
-
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(filmId));
             return film;
         });
     }
+
 
     @Override
     public Film getFilmById(Integer id) {
@@ -74,8 +77,10 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
-
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(film.getId()));
             return film;
+
+
         };
         return jdbcTemplate.queryForObject(query, rowMapper, id);
     }
@@ -113,6 +118,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         Integer id = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(id);
         genreDbStorage.addGenre(film.getId(), film.getGenres());
+        directorDbStorage.addDirectorsToFilm(film.getId(), film.getDirectors());
 
         return film;
     }
@@ -141,6 +147,8 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 film.getMpa().getId(),
                 film.getId());
         film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
+        directorDbStorage.deleteDirectorsFromFilm(film.getId(), null);
+        directorDbStorage.addDirectorsToFilm(film.getId(), film.getDirectors());
         return film;
     }
 
@@ -159,7 +167,8 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "GROUP BY f.id " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
+        return jdbcTemplate.query(sql, filmRowMapper, limit);
+
     }
 
     private class FilmRowMapper implements RowMapper<Film> {
@@ -175,5 +184,28 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
             return film;
         }
+    }
+
+    @Override
+    public List<Film> findRecommendedFilms(int id) {
+        log.info("Получен GET-запрос вызвавший метод findRecommendedFilms");
+        String sql = "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, f.RATING_ID" +
+                " FROM likes l" +
+                " JOIN films f ON f.id = l.film_id" +
+                " WHERE l.user_id in (" +   //Ищем нужного пользователя
+                " SELECT l2.user_id" +
+                " FROM likes l1" +
+                " JOIN likes l2 ON l1.film_id = l2.film_id" +
+                " AND l1.user_id != l2.user_id" +
+                " WHERE l1.user_id = ?" +
+                " GROUP BY l1.user_id, l2.user_id" +
+                " ORDER BY COUNT(*) DESC" +
+                " LIMIT 1)" +
+                " AND l.film_id NOT IN (" + // убираем фильмы лайкнутые искомым пользователем
+                " SELECT film_id" +
+                " FROM likes" +
+                " WHERE user_id = ?" +
+                " );";
+        return jdbcTemplate.query(sql, filmRowMapper, id, id);
     }
 }

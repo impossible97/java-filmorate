@@ -1,0 +1,1 @@
+UPDATE director SET name = ? WHERE id = ?

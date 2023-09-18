@@ -19,5 +19,9 @@ public interface FilmDbStorage {
 
     Film getFilmById(Integer id);
 
+
     List<Film> findCommonFilms(int userId, int friendId);
+
+    List<Film> findRecommendedFilms(int id);
+
 }

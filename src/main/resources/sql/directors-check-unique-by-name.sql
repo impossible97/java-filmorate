@@ -1,0 +1,1 @@
+select count(id) from director where name = ? and id != ?
