@@ -111,6 +111,7 @@ public class FilmService {
         return filmDbStorage.updateFIlm(film);
     }
 
+
     public List<Film> searchFilms(String query, String by) {
         log.info("Выполняется поиск фильмов");
         switch (by) {
@@ -123,5 +124,8 @@ public class FilmService {
             default:
                 return new ArrayList<>();
         }
+
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
     }
 }
