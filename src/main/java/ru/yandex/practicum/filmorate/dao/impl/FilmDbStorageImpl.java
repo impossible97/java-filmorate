@@ -36,6 +36,9 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     private final GenreDbStorage genreDbStorage;
     private final DirectorDbStorage directorDbStorage;
 
+    private final FilmRowMapper filmRowMapper = new FilmRowMapper();
+
+
     @Override
     public List<Film> getAll() {
         log.info("Получен GET-запрос");
@@ -150,7 +153,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "GROUP BY f.id " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), limit);
+        return jdbcTemplate.query(sql, filmRowMapper, limit);
     }
 
     private class FilmRowMapper implements RowMapper<Film> {
@@ -209,5 +212,28 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "ORDER BY likes_count DESC, f.name";
         String likeQuery = "%" + query + "%";
         return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery, likeQuery);
+    }
+
+    @Override
+    public List<Film> findRecommendedFilms(int id) {
+        log.info("Получен GET-запрос вызвавший метод findRecommendedFilms");
+        String sql = "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, f.RATING_ID" +
+                " FROM likes l" +
+                " JOIN films f ON f.id = l.film_id" +
+                " WHERE l.user_id in (" +   //Ищем нужного пользователя
+                " SELECT l2.user_id" +
+                " FROM likes l1" +
+                " JOIN likes l2 ON l1.film_id = l2.film_id" +
+                " AND l1.user_id != l2.user_id" +
+                " WHERE l1.user_id = ?" +
+                " GROUP BY l1.user_id, l2.user_id" +
+                " ORDER BY COUNT(*) DESC" +
+                " LIMIT 1)" +
+                " AND l.film_id NOT IN (" + // убираем фильмы лайкнутые искомым пользователем
+                " SELECT film_id" +
+                " FROM likes" +
+                " WHERE user_id = ?" +
+                " );";
+        return jdbcTemplate.query(sql, filmRowMapper, id, id);
     }
 }

@@ -19,6 +19,8 @@ public interface FilmDbStorage {
 
     Film getFilmById(Integer id);
 
+    List<Film> findRecommendedFilms(int id);
+
     List<Film> searchByTitle(String query);
 
     List<Film> searchByDirector(String query);

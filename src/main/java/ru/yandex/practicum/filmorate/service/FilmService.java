@@ -124,4 +124,8 @@ public class FilmService {
                 return new ArrayList<>();
         }
     }
+
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
+    }
 }
