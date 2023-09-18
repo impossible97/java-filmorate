@@ -1,20 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -23,7 +14,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventDbStorage;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 @Slf4j
@@ -44,7 +34,7 @@ public class EventDbStorageImpl implements EventDbStorage {
             .addValue("event_timestamp", Timestamp.from(event.getTimestamp()));
         final KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        namedParameterJdbcOperations.update(sql, parameters, keyHolder, new String[] { "id" });
+        namedParameterJdbcOperations.update(sql, parameters, keyHolder, new String[] {"id"});
         final long id = keyHolder.getKey().longValue();
 
         event.setEventId(id);

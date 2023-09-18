@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +8,10 @@ import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -31,8 +32,8 @@ public class FriendService {
         List<Integer> friendsId = jdbcTemplate.queryForList(query, Integer.class, userId);
 
         return friendsId.stream()
-            .map(userStorage::getUserById)
-            .collect(Collectors.toList());
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
     public Set<User> findCommonFriends(int id, int otherId) {
@@ -41,8 +42,8 @@ public class FriendService {
         final List<User> friends = findFriendsByUserId(id);
         final List<User> otherFriends = findFriendsByUserId(otherId);
         return friends.stream()
-            .filter(otherFriends::contains)
-            .collect(Collectors.toSet());
+                .filter(otherFriends::contains)
+                .collect(Collectors.toSet());
     }
 
     public void addFriend(Integer id, Integer friendId) {
