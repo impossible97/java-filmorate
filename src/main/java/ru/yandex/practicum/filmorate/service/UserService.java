@@ -53,6 +53,7 @@ public class UserService {
     }
 
     public void deleteUser(int id) {
+        log.info("Выполняется операция удаления пользователя");
         userStorage.deleteUser(id);
     }
 }

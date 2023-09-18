@@ -111,6 +111,7 @@ public class FilmService {
     }
 
     public void deleteFilm(int id) {
+        log.info("Выполняется операция удаления фильма");
         filmDbStorage.deleteFilm(id);
     }
 }

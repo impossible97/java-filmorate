@@ -131,8 +131,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     @Override
     public void deleteFilm(Integer filmId) {
-        log.info("Получен DELETE-запрос");
-
         String query = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(query, filmId);
     }
