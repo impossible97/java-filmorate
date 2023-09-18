@@ -18,4 +18,6 @@ public interface FilmDbStorage {
     List<Film> findTopFilms(int limit);
 
     Film getFilmById(Integer id);
+
+    List<Film> findRecommendedFilms(int id);
 }

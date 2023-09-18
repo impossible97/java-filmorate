@@ -110,8 +110,13 @@ public class FilmService {
         return filmDbStorage.updateFIlm(film);
     }
 
+
     public void deleteFilm(int id) {
         log.info("Выполняется операция удаления фильма");
         filmDbStorage.deleteFilm(id);
+    }
+  
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
     }
 }
