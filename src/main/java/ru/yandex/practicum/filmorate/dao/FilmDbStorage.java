@@ -14,8 +14,13 @@ public interface FilmDbStorage {
 
     List<Film> getAll();
 
-
     List<Film> findTopFilms(int limit);
+
+    List<Film> findTopFilmsByGenre(int limit, int genreId);
+
+    List<Film> findTopFilmsByYear(int limit, int year);
+
+    List<Film> findTopFilms(int limit, int genreId, int year);
 
     Film getFilmById(Integer id);
 

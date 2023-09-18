@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,8 +60,10 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     @ResponseBody
-    public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count) {
-        return filmService.findFilmsByLikes(count);
+    public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count,
+                                       @RequestParam("genreId") final Optional<Integer> genreId,
+                                       @RequestParam("year") final Optional<Integer> year) {
+        return filmService.findFilmsByLikes(count, genreId, year);
     }
 
     @GetMapping("/films/common")
