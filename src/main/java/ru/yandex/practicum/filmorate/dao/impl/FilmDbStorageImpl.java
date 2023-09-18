@@ -182,6 +182,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "ORDER BY likes_count DESC";
         String likeQuery = "%" + title + "%";
         return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery);
+
     }
 
     @Override
