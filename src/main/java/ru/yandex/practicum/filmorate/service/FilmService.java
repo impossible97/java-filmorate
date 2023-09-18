@@ -69,7 +69,7 @@ public class FilmService {
     }
 
     public List<Film> findFilmsByLikes(Integer count) {
-        log.info("Получен GET-запрос");
+        log.info("Выполняется вывод самых популярных фильмов");
         return filmDbStorage.findTopFilms(count);
     }
 
@@ -112,6 +112,7 @@ public class FilmService {
     }
 
     public List<Film> searchFilms(String query, String by) {
+        log.info("Выполняется поиск фильмов");
         switch (by) {
             case "title":
                 return filmDbStorage.searchByTitle(query);
