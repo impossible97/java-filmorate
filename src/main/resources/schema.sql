@@ -23,8 +23,8 @@ CREATE TABLE friendship
     user_id   INTEGER,
     friend_id INTEGER,
     CONSTRAINT user_to_friend_un UNIQUE (user_id, friend_id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (friend_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (friend_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE films
@@ -43,8 +43,8 @@ CREATE TABLE likes
 (
     film_id INTEGER,
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (film_id) REFERENCES films (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
 
 CREATE TABLE genre_name
@@ -58,7 +58,7 @@ CREATE TABLE film_genres
 (
     film_id  int4 NOT NULL,
     genre_id int4 NOT NULL,
-    FOREIGN KEY (film_id) REFERENCES films (id),
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genre_name (genre_id)
 );
 

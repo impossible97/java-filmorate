@@ -20,8 +20,12 @@ public class FriendService {
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public List<User> findFriendsByUserId(long userId) {
+    public List<User> findFriendsByUserId(int userId) {
         log.info("Получен GET-запрос");
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + userId + " не найден!");
+        }
         String query = "SELECT friend_id FROM friendship WHERE user_id = ?";
         List<Integer> friendsId = jdbcTemplate.queryForList(query, Integer.class, userId);
 
