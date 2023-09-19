@@ -87,6 +87,21 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        log.info("Получен GET-запрос");
+        String sql =
+                "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, f.RATING_ID," +
+                        " COUNT(*) AS like_count" +
+                        " FROM likes l" +
+                        " JOIN films f ON f.id = l.film_id" +
+                        " WHERE l.user_id IN (?, ?)" +
+                        " GROUP BY f.id" +
+                        " HAVING COUNT(DISTINCT l.user_id) = 2" +
+                        " ORDER BY like_count DESC;";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), userId, friendId);
+    }
+
+    @Override
     public Film createFilm(Film film) {
         log.info("Получен POST-запрос");
         String query = "INSERT INTO films (name, description, releaseDate, duration, rating_id) VALUES (?, ?, ?, ?, ?)";
@@ -154,6 +169,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sql, filmRowMapper, limit);
+
     }
 
     private class FilmRowMapper implements RowMapper<Film> {

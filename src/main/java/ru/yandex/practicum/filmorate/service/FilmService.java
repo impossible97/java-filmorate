@@ -68,6 +68,10 @@ public class FilmService {
         return genreDbStorage.getAllGenres();
     }
 
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        return filmDbStorage.findCommonFilms(userId, friendId);
+    }
+
     public List<Film> findFilmsByLikes(Integer count) {
         log.info("Выполняется вывод самых популярных фильмов");
         return filmDbStorage.findTopFilms(count);
