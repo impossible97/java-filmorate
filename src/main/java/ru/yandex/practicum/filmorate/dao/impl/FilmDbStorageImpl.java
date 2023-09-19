@@ -17,7 +17,11 @@ import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +58,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         });
     }
 
-
     @Override
     public Film getFilmById(Integer id) {
         log.info("Получен GET-запрос");
@@ -79,8 +82,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
             film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(film.getId()));
             return film;
-
-
         };
         return jdbcTemplate.queryForObject(query, rowMapper, id);
     }
@@ -182,8 +183,51 @@ public class FilmDbStorageImpl implements FilmDbStorage {
             film.setDuration(rs.getInt("duration"));
             film.setMpa(mpaDbStorage.findMpaById(rs.getInt("rating_id")));
             film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorDbStorage.getAllDirectorsByFilmId(film.getId()));
             return film;
         }
+    }
+
+    @Override
+    public List<Film> searchByTitle(String title) {
+        String likeQuery = "%" + title + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.name ILIKE '%s' " +
+                "GROUP BY f.id " +
+                "ORDER BY likes_count DESC", likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
+    }
+
+    @Override
+    public List<Film> searchByDirector(String director) {
+        String likeQuery = "%" + director + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.id IN " +
+                "(SELECT film_id FROM films_to_directors fd " +
+                "JOIN director d ON fd.director_id = d.id " +
+                "WHERE d.name ILIKE '%s') " +
+                "GROUP BY f.id, f.name " +
+                "ORDER BY likes_count DESC, f.name", likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
+    }
+
+    @Override
+    public List<Film> searchByTitleAndDirector(String query) {
+        String likeQuery = "%" + query + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE f.name ILIKE '%s' OR f.id IN " +
+                "(SELECT film_id FROM films_to_directors fd " +
+                "JOIN director d ON fd.director_id = d.id " +
+                "WHERE d.name ILIKE '%s') " +
+                "GROUP BY f.id, f.name " +
+                "ORDER BY likes_count DESC, f.name", likeQuery, likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
     }
 
     @Override
