@@ -190,45 +190,44 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     @Override
     public List<Film> searchByTitle(String title) {
-        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+        String likeQuery = "%" + title + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
                 "FROM films f " +
                 "LEFT JOIN likes l ON f.id = l.film_id " +
-                "WHERE f.name ILIKE ? " +
+                "WHERE f.name ILIKE '%s' " +
                 "GROUP BY f.id " +
-                "ORDER BY likes_count DESC";
-        String likeQuery = "%" + title + "%";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery);
-
+                "ORDER BY likes_count DESC", likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
     }
 
     @Override
     public List<Film> searchByDirector(String director) {
-        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+        String likeQuery = "%" + director + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
                 "FROM films f " +
                 "LEFT JOIN likes l ON f.id = l.film_id " +
                 "WHERE f.id IN " +
                 "(SELECT film_id FROM films_to_directors fd " +
                 "JOIN director d ON fd.director_id = d.id " +
-                "WHERE d.name ILIKE ?) " +
+                "WHERE d.name ILIKE '%s') " +
                 "GROUP BY f.id, f.name " +
-                "ORDER BY likes_count DESC, f.name";
-        String likeQuery = "%" + director + "%";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery);
+                "ORDER BY likes_count DESC, f.name", likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
     }
 
     @Override
     public List<Film> searchByTitleAndDirector(String query) {
-        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+        String likeQuery = "%" + query + "%";
+        String sql = String.format("SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
                 "FROM films f " +
                 "LEFT JOIN likes l ON f.id = l.film_id " +
-                "WHERE f.name ILIKE ? OR f.id IN " +
+                "WHERE f.name ILIKE '%s' OR f.id IN " +
                 "(SELECT film_id FROM films_to_directors fd " +
                 "JOIN director d ON fd.director_id = d.id " +
-                "WHERE d.name ILIKE ?) " +
+                "WHERE d.name ILIKE '%s') " +
                 "GROUP BY f.id, f.name " +
-                "ORDER BY likes_count DESC, f.name";
-        String likeQuery = "%" + query + "%";
-        return jdbcTemplate.query(sql, new FilmRowMapper(), likeQuery, likeQuery);
+                "ORDER BY likes_count DESC, f.name", likeQuery, likeQuery);
+        return jdbcTemplate.query(sql, new FilmRowMapper());
     }
 
     @Override
