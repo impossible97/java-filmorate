@@ -111,8 +111,6 @@ public class UserDbStorageImpl implements UserDbStorage {
 
     @Override
     public void deleteUser(Integer userId) {
-
-        log.info("Получен DELETE-запрос");
         String query = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(query, userId);
     }

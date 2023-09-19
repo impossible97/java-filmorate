@@ -51,4 +51,9 @@ public class UserService {
         validate(user);
         return userStorage.updateUser(user);
     }
+
+    public void deleteUser(int id) {
+        log.info("Выполняется операция удаления пользователя");
+        userStorage.deleteUser(id);
+    }
 }

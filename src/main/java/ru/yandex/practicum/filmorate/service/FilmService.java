@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -67,8 +68,12 @@ public class FilmService {
         return genreDbStorage.getAllGenres();
     }
 
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        return filmDbStorage.findCommonFilms(userId, friendId);
+    }
+
     public List<Film> findFilmsByLikes(Integer count) {
-        log.info("Получен GET-запрос");
+        log.info("Выполняется вывод самых популярных фильмов");
         return filmDbStorage.findTopFilms(count);
     }
 
@@ -108,5 +113,29 @@ public class FilmService {
     public Film updateFilm(Film film) {
         validate(film);
         return filmDbStorage.updateFIlm(film);
+    }
+
+    public void deleteFilm(int id) {
+        log.info("Выполняется операция удаления фильма");
+        filmDbStorage.deleteFilm(id);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        log.info("Выполняется поиск фильмов");
+
+        switch (by) {
+            case "title":
+                return filmDbStorage.searchByTitle(query);
+            case "director":
+                return filmDbStorage.searchByDirector(query);
+            case "title,director":
+                return filmDbStorage.searchByTitleAndDirector(query);
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
     }
 }
