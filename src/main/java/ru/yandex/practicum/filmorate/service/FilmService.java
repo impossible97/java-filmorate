@@ -122,6 +122,7 @@ public class FilmService {
 
     public List<Film> searchFilms(String query, String by) {
         log.info("Выполняется поиск фильмов");
+
         switch (by) {
             case "title":
                 return filmDbStorage.searchByTitle(query);
