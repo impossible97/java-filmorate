@@ -115,8 +115,14 @@ public class FilmService {
         return filmDbStorage.updateFIlm(film);
     }
 
+    public void deleteFilm(int id) {
+        log.info("Выполняется операция удаления фильма");
+        filmDbStorage.deleteFilm(id);
+    }
+
     public List<Film> searchFilms(String query, String by) {
         log.info("Выполняется поиск фильмов");
+
         switch (by) {
             case "title":
                 return filmDbStorage.searchByTitle(query);
