@@ -89,16 +89,6 @@ CREATE TABLE IF NOT EXISTS reviews (
     UNIQUE (user_id, film_id)
 );
 
-CREATE TABLE IF NOT EXISTS reviews_like (
-    review_id INTEGER REFERENCES reviews(id) ON DELETE CASCADE,
-    user_id_like INTEGER REFERENCES users(id)
-);
-
-CREATE TABLE IF NOT EXISTS reviews_dislike (
-    review_id INTEGER REFERENCES reviews(id) ON DELETE CASCADE,
-    user_id_dislike INTEGER REFERENCES users(id)
-);
-
 CREATE TABLE IF NOT EXISTS reviews_likes (
     review_id INTEGER REFERENCES reviews(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
