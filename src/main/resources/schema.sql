@@ -103,10 +103,10 @@ CREATE TABLE events
     entity_id       int4 NOT NULL,
     event_type      VARCHAR(6) NOT NULL,
     operation       VARCHAR(6) NOT NULL,
-    event_timestamp TIMESTAMP,
+    event_timestamp TIMESTAMP WITH TIME ZONE,
 
     CONSTRAINT events_PK PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 

@@ -14,6 +14,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventDbStorage;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 @Component
 @Slf4j
@@ -31,13 +33,11 @@ public class EventDbStorageImpl implements EventDbStorage {
             .addValue("entity_id", event.getEntityId())
             .addValue("event_type", event.getEventType().name())
             .addValue("operation", event.getOperation().name())
-            .addValue("event_timestamp", Timestamp.from(event.getTimestamp()));
+            .addValue("event_timestamp", event.getTimestamp());
         final KeyHolder keyHolder = new GeneratedKeyHolder();
 
         namedParameterJdbcOperations.update(sql, parameters, keyHolder, new String[] {"id"});
-        final long id = keyHolder.getKey().longValue();
-
-        event.setEventId(id);
+        event.setEventId(keyHolder.getKey().longValue());
         return event;
     }
 
@@ -57,8 +57,8 @@ public class EventDbStorageImpl implements EventDbStorage {
             .eventId(row.getLong("id"))
             .userId(row.getInt("user_id"))
             .entityId(row.getInt("entity_id"))
-            .eventType(Event.EventType.valueOf(row.getString("event_type")))
-            .operation(Event.Operation.valueOf(row.getString("operation")))
+            .eventType(EventType.valueOf(row.getString("event_type")))
+            .operation(Operation.valueOf(row.getString("operation")))
             .timestamp(row.getTimestamp("event_timestamp").toInstant())
             .build();
     }

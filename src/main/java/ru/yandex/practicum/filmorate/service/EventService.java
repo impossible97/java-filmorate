@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.dao.EventDbStorage;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.validator.ValidatorHelper;
 
 @Service
 @Slf4j
@@ -30,25 +31,12 @@ public class EventService {
     }
 
     private void validateCreate(final Event event) throws ValidationException {
-        if (event.getEventId() != null) {
-            throw new ValidationException("Id should be null");
-        }
-        if (event.getUserId() == null) {
-            throw new ValidationException("User Id should be not null");
-        }
-        if (event.getEntityId() == null) {
-            throw new ValidationException("Entity Id should be not null");
-        }
-        if (event.getEventType() == null) {
-            throw new ValidationException("Event Type id should be not null");
-        }
-        if (event.getOperation() == null) {
-            throw new ValidationException("Operation should be not null");
-        }
-        if (event.getTimestamp() == null) {
-            throw new ValidationException("Timestamp should be not null");
-        }
-
+        ValidatorHelper.isNull(event.getEventId(), "Id");
+        ValidatorHelper.isNotNull(event.getUserId(), "User Id");
+        ValidatorHelper.isNotNull(event.getEntityId(), "Entity Id");
+        ValidatorHelper.isNotNull(event.getEventType(), "Event Type");
+        ValidatorHelper.isNotNull(event.getOperation(), "Operation");
+        ValidatorHelper.isNotNull(event.getTimestamp(), "Timestamp");
         // Suppose that userId and entityId is already validated
     }
 

@@ -18,6 +18,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 
 @Service
@@ -41,8 +43,8 @@ public class FilmService {
         final Event event = Event.builder()
             .userId(userId)
             .entityId(filmId)
-            .eventType(Event.EventType.LIKE)
-            .operation(Event.Operation.ADD)
+            .eventType(EventType.LIKE)
+            .operation(Operation.ADD)
             .build();
         eventService.raiseEvent(event);
     }
@@ -64,8 +66,8 @@ public class FilmService {
         final Event event = Event.builder()
             .userId(userId)
             .entityId(filmId)
-            .eventType(Event.EventType.LIKE)
-            .operation(Event.Operation.REMOVE)
+            .eventType(EventType.LIKE)
+            .operation(Operation.REMOVE)
             .build();
         eventService.raiseEvent(event);
     }

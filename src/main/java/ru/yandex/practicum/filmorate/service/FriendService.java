@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 @Service
 @AllArgsConstructor
@@ -65,8 +67,8 @@ public class FriendService {
         final Event event = Event.builder()
             .userId(id)
             .entityId(friendId)
-            .eventType(Event.EventType.FRIEND)
-            .operation(Event.Operation.ADD)
+            .eventType(EventType.FRIEND)
+            .operation(Operation.ADD)
             .build();
         eventService.raiseEvent(event);
     }
@@ -89,8 +91,8 @@ public class FriendService {
         final Event event = Event.builder()
             .userId(id)
             .entityId(friendId)
-            .eventType(Event.EventType.FRIEND)
-            .operation(Event.Operation.REMOVE)
+            .eventType(EventType.FRIEND)
+            .operation(Operation.REMOVE)
             .build();
         eventService.raiseEvent(event);
     }

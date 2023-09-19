@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 @Data
 @NoArgsConstructor
@@ -20,16 +22,4 @@ public class Event {
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, without = JsonFormat.Feature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
     private Instant timestamp;
-
-    public enum EventType {
-        LIKE,
-        REVIEW,
-        FRIEND
-    }
-
-    public enum Operation {
-        REMOVE,
-        ADD,
-        UPDATE
-    }
 }
