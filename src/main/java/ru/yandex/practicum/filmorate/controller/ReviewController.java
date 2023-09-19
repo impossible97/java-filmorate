@@ -14,7 +14,6 @@ import java.util.List;
 public class ReviewController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final ReviewService reviewService;
-    
     @Autowired
     public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
