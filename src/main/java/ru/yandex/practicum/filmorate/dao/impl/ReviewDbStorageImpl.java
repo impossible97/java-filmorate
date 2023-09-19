@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,12 @@ public class ReviewDbStorageImpl implements ReviewDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public ReviewDbStorageImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private Review makeReview(ResultSet rs) throws SQLException {
+    private Review makeReview(ResultSet rs, Integer rowNum) throws SQLException {
         int id = rs.getInt("id");
         String content = rs.getString("content");
         Boolean isPositive = rs.getBoolean("is_positive");
@@ -31,29 +33,26 @@ public class ReviewDbStorageImpl implements ReviewDbStorage {
 
     @Override
     public List<Review> getFilmsReviews(int count) {
-        String getFilmsReviews = "SELECT * " +
-                "FROM reviews " +
-                "ORDER BY useful DESC " +
-                "LIMIT ?";
-        return jdbcTemplate.query(getFilmsReviews, (rs, rowNum) -> makeReview(rs), count);
+        String getFilmsReviews = "SELECT * " + "FROM reviews " + "ORDER BY useful DESC " + "LIMIT ?";
+        return jdbcTemplate.query(getFilmsReviews, this::makeReview, count);
     }
 
     @Override
     public List<Review> getFilmsReviewsById(int filmId, int count) {
         String getFilmsReviews = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
-        return jdbcTemplate.query(getFilmsReviews, (rs, rowNum) -> makeReview(rs), filmId, count);
+        return jdbcTemplate.query(getFilmsReviews, this::makeReview, filmId, count);
     }
 
     @Override
     public List<Long> getListId() {
-        String getFilmsReviews = "SELECT id FROM reviews";
-        return jdbcTemplate.query(getFilmsReviews, (rs, rowNum) -> rs.getLong("id"));
+        String getListId = "SELECT id FROM reviews";
+        return jdbcTemplate.query(getListId, (rs, rowNum) -> rs.getLong("id"));
     }
 
     @Override
     public Review getReview(long id) {
         String getReview = "SELECT * FROM REVIEWS WHERE id = ?";
-        return jdbcTemplate.queryForObject(getReview, (rs, rowNum) -> makeReview(rs), id);
+        return jdbcTemplate.queryForObject(getReview, this::makeReview, id);
     }
 
     @Override
@@ -71,40 +70,37 @@ public class ReviewDbStorageImpl implements ReviewDbStorage {
 
     @Override
     public Review addReview(Review review) {
-        SimpleJdbcInsert simpleJdbcInsert =
-                new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews").usingGeneratedKeyColumns("id");
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews").usingGeneratedKeyColumns("id");
         review.setReviewId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
         return review;
     }
 
     @Override
-    public void addLike(int id, int userId) {
-        String addLike =
-                "INSERT INTO reviews_like (review_id, user_id_like) VALUES (?, ?);" +
-                        "UPDATE REVIEWS SET useful = IFNULL(useful, 0) + 1 WHERE id = ?;";
-        jdbcTemplate.update(addLike, id, userId, id);
-        //deleteDislike(id, userId);
+    public void addLike(int reviewId, int userId) {
+        String addLike = "MERGE INTO reviews_likes KEY(review_id, user_id) VALUES (?, ?, ?); "
+                + "UPDATE reviews SET useful = IFNULL(useful, 0) + 1 WHERE id = ?;";
+        jdbcTemplate.update(addLike, reviewId, userId, true, reviewId);
     }
 
     @Override
-    public void addDislike(int id, int userId) {
-        String addDislike =
-                "INSERT INTO reviews_dislike (review_id, user_id_dislike) VALUES (?, ?);" +
-                        "UPDATE REVIEWS SET useful = IFNULL(useful, 0) - 1 WHERE id = ?;";
-        jdbcTemplate.update(addDislike, id, userId, id);
-        //deleteLike(id, userId);
+    public void addDislike(int reviewId, int userId) {
+        String addDislike = "MERGE INTO reviews_likes KEY(review_id, user_id) VALUES (?, ?, ?); "
+                + "UPDATE reviews SET useful = IFNULL(useful, 0) - 1 WHERE id = ?;";
+        jdbcTemplate.update(addDislike, reviewId, userId, false, reviewId);
     }
 
     @Override
-    public void deleteLike(int id, int userId) {
-        String deleteLike = "DELETE FROM reviews_like WHERE review_id = ? AND user_id_like = ?";
-        jdbcTemplate.update(deleteLike, id, userId);
+    public void deleteLike(int reviewId, int userId) {
+        String deleteLike = "DELETE FROM reviews_likes WHERE review_id = ? AND user_id = ?; " +
+                "UPDATE reviews SET useful = IFNULL(useful, 0) - 1 WHERE id = ?;";
+        jdbcTemplate.update(deleteLike, reviewId, userId);
     }
 
     @Override
-    public void deleteDislike(int id, int userId) {
-        String deleteDislike = "DELETE FROM reviews_dislike WHERE review_id = ? AND user_id_dislike = ?";
-        jdbcTemplate.update(deleteDislike, id, userId);
+    public void deleteDislike(int reviewId, int userId) {
+        String deleteDislike = "DELETE FROM reviews_likes WHERE review_id = ? AND user_id = ?; " +
+                "UPDATE reviews SET useful = IFNULL(useful, 0) + 1 WHERE id = ?;";
+        jdbcTemplate.update(deleteDislike, reviewId, userId);
     }
 
 }

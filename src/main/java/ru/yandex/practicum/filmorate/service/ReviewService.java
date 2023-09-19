@@ -26,8 +26,8 @@ public class ReviewService {
     }
 
     public Review addReview(Review review) {
+        log.debug(Objects.toString(review));
         checkReview(review);
-        log.debug(review.toString());
         reviewDbStorage.addReview(review);
         return review;
     }
@@ -50,13 +50,16 @@ public class ReviewService {
     }
 
     public List<Review> getFilmsReviews(int filmId, int count) {
-        if (filmId == 0) return reviewDbStorage.getFilmsReviews(count);
-        checkFilmId(filmId);
-        return reviewDbStorage.getFilmsReviewsById(filmId, count);
+        if (filmId == 0) {
+            return reviewDbStorage.getFilmsReviews(count);
+        } else {
+            checkFilmIdPositivity(filmId);
+            return reviewDbStorage.getFilmsReviewsById(filmId, count);
+        }
     }
 
-    public void addLike(int id, int userId) {
-        reviewDbStorage.addLike(id, userId);
+    public void addLike(int reviewId, int userId) {
+        reviewDbStorage.addLike(reviewId, userId);
     }
 
     public void addDislike(int id, int userId) {
@@ -67,7 +70,7 @@ public class ReviewService {
         reviewDbStorage.deleteLike(id, userId);
     }
 
-    public void deleteDisike(int id, int userId) {
+    public void deleteDislike(int id, int userId) {
         reviewDbStorage.deleteDislike(id, userId);
     }
 
@@ -81,19 +84,19 @@ public class ReviewService {
         } else if (Objects.isNull(review.getFilmId())) {
             throw new ValidationException("Должен быть указан id фильма");
         }
-        checkFilmId(review.getFilmId());
-        checkUserId(review.getUserId());
+        checkFilmIdPositivity(review.getFilmId());
+        checkUserIdPositivity(review.getUserId());
     }
 
-    private void checkUserId(Integer userId) {
+    private void checkUserIdPositivity(Integer userId) {
         if (userId <= 0) {
-            throw new NotFoundException("Неверный id пользователя");
+            throw new NotFoundException("Неверный id отзыва");
         }
     }
 
-    private void checkFilmId(int filmId) {
+    private void checkFilmIdPositivity(int filmId) {
         if (filmId <= 0) {
-            throw new NotFoundException("Неверный id фильма");
+            throw new NotFoundException("Неверный id отзыва");
         }
     }
 
