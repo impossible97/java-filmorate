@@ -38,7 +38,7 @@ public class ReviewService {
 
         final Event event = Event.builder()
             .userId(addedReview.getUserId())
-            .entityId(addedReview.getReviewId()) // suppose that here should be filmId, but tests passed only this way
+            .entityId(addedReview.getReviewId())
             .eventType(EventType.REVIEW)
             .operation(Operation.ADD)
             .build();
@@ -58,7 +58,7 @@ public class ReviewService {
 
         final Event event = Event.builder()
             .userId(storedReview.getUserId())
-            .entityId(storedReview.getReviewId()) // suppose that here should be filmId, but tests passed only this way
+            .entityId(storedReview.getReviewId())
             .eventType(EventType.REVIEW)
             .operation(Operation.UPDATE)
             .build();
@@ -77,7 +77,7 @@ public class ReviewService {
 
         final Event event = Event.builder()
             .userId(storedReview.getUserId())
-            .entityId(storedReview.getReviewId()) // suppose that here should be filmId, but tests passed only this way
+            .entityId(storedReview.getReviewId())
             .eventType(EventType.REVIEW)
             .operation(Operation.REMOVE)
             .build();
