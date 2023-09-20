@@ -55,7 +55,7 @@ public class EventDbStorageImpl implements EventDbStorage {
         return Event.builder()
             .eventId(row.getLong("id"))
             .userId(row.getInt("user_id"))
-            .entityId(row.getInt("entity_id"))
+            .entityId(row.getLong("entity_id"))
             .eventType(EventType.valueOf(row.getString("event_type")))
             .operation(Operation.valueOf(row.getString("operation")))
             .timestamp(row.getTimestamp("event_timestamp").toInstant())

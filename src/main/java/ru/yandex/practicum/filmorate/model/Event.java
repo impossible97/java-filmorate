@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.model.event.Operation;
 public class Event {
     private Long eventId;
     private Integer userId;
-    private Integer entityId;
+    private Long entityId;
     private EventType eventType;
     private Operation operation;
 

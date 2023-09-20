@@ -42,7 +42,7 @@ public class FilmService {
 
         final Event event = Event.builder()
             .userId(userId)
-            .entityId(filmId)
+            .entityId((long) filmId)
             .eventType(EventType.LIKE)
             .operation(Operation.ADD)
             .build();
@@ -65,7 +65,7 @@ public class FilmService {
 
         final Event event = Event.builder()
             .userId(userId)
-            .entityId(filmId)
+            .entityId((long) filmId)
             .eventType(EventType.LIKE)
             .operation(Operation.REMOVE)
             .build();
