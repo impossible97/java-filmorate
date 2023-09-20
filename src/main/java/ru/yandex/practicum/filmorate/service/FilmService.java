@@ -38,7 +38,10 @@ public class FilmService {
 
     public void addLike(int filmId, int userId) {
         log.info("Получен PUT-запрос");
-        String query = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        String query = "MERGE INTO likes l " +
+            "USING (VALUES (?, ?)) tmp (film_id, user_id) " +
+            "ON l.film_id = tmp.film_id and l.user_id = tmp.user_id " +
+            "WHEN NOT MATCHED THEN INSERT (film_id, user_id) VALUES (tmp.film_id, tmp.user_id)";
         jdbcTemplate.update(query, filmId, userId);
 
         final Event event = Event.builder()
@@ -51,13 +54,11 @@ public class FilmService {
     }
 
     public void deleteLike(int filmId, int userId) {
-        String idQuery = "SELECT user_id FROM likes WHERE user_id = ?";
+        String idQuery = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
         try {
-            if (jdbcTemplate.queryForObject(idQuery, Integer.class, userId) == null) {
-                throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
-            }
+            jdbcTemplate.queryForObject(idQuery, Integer.class, filmId, userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
+            throw new NotFoundException("Лайк от пользователя с id " + userId + " на фильм с id " + filmId + " не найден в likes");
         }
 
         log.info("Получен DELETE-запрос");
