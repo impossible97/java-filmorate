@@ -43,6 +43,7 @@ CREATE TABLE likes
 (
     film_id INTEGER,
     user_id INTEGER,
+    CONSTRAINT LIKES_PK primary key (FILM_ID, USER_ID),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
