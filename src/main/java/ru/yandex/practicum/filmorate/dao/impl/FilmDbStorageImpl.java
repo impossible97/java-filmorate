@@ -171,6 +171,44 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     }
 
+    @Override
+    public List<Film> findTopFilmsByGenre(int limit, int genreId) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "JOIN film_genres fg on f.id = fg.film_id " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "WHERE fg.genre_id = ? " +
+                "GROUP BY f.id " +
+                "ORDER BY likes_count DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), genreId, limit);
+    }
+
+    @Override
+    public List<Film> findTopFilmsByYear(int limit, int year) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+            "FROM films f " +
+            "LEFT JOIN likes l ON f.id = l.film_id " +
+            "WHERE EXTRACT(YEAR FROM f.releaseDate) = ? " +
+            "GROUP BY f.id " +
+            "ORDER BY likes_count DESC " +
+            "LIMIT ?";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), year, limit);
+    }
+
+    @Override
+    public List<Film> findTopFilms(int limit, int genreId, int year) {
+        String sql = "SELECT f.id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count " +
+            "FROM films f " +
+            "JOIN film_genres fg on f.id = fg.film_id " +
+            "LEFT JOIN likes l ON f.id = l.film_id " +
+            "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM releaseDate) = ? " +
+            "GROUP BY f.id " +
+            "ORDER BY likes_count DESC " +
+            "LIMIT ?";
+        return jdbcTemplate.query(sql, new FilmRowMapper(), genreId, year, limit);
+    }
+
     private class FilmRowMapper implements RowMapper<Film> {
         @Override
         public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
