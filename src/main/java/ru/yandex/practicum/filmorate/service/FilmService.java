@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -17,6 +18,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 
 @Service
@@ -28,6 +31,7 @@ public class FilmService {
     private final MPADbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
     private final JdbcTemplate jdbcTemplate;
+    private final EventService eventService;
     static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
     static int MIN_LENGTH = 200;
 
@@ -35,6 +39,14 @@ public class FilmService {
         log.info("Получен PUT-запрос");
         String query = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(query, filmId, userId);
+
+        final Event event = Event.builder()
+            .userId(userId)
+            .entityId((long) filmId)
+            .eventType(EventType.LIKE)
+            .operation(Operation.ADD)
+            .build();
+        eventService.raiseEvent(event);
     }
 
     public void deleteLike(int filmId, int userId) {
@@ -50,6 +62,14 @@ public class FilmService {
         log.info("Получен DELETE-запрос");
         String query = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(query, filmId, userId);
+
+        final Event event = Event.builder()
+            .userId(userId)
+            .entityId((long) filmId)
+            .eventType(EventType.LIKE)
+            .operation(Operation.REMOVE)
+            .build();
+        eventService.raiseEvent(event);
     }
 
     public List<Mpa> findAllMpa() {

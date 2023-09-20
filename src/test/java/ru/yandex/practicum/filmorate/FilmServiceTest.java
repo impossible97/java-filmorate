@@ -33,7 +33,8 @@ class FilmServiceTest {
             new FilmDbStorageImpl(new JdbcTemplate(), new MPADbStorageImpl(new JdbcTemplate()), new GenreDbStorageImpl(new JdbcTemplate()), null),
             new MPADbStorageImpl(new JdbcTemplate()),
             new GenreDbStorageImpl(new JdbcTemplate()),
-            new JdbcTemplate());
+            new JdbcTemplate(),
+            null);
 
 
     @Autowired
