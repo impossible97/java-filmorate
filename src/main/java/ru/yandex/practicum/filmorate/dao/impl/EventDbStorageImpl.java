@@ -36,7 +36,7 @@ public class EventDbStorageImpl implements EventDbStorage {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
 
         namedParameterJdbcOperations.update(sql, parameters, keyHolder, new String[] {"id"});
-        event.setEventId(keyHolder.getKey().longValue());
+        event.setEventId(keyHolder.getKey().intValue());
         return event;
     }
 
@@ -53,9 +53,9 @@ public class EventDbStorageImpl implements EventDbStorage {
 
     private Event mapRowToEvent(final ResultSet row, final int rowNumber) throws SQLException {
         return Event.builder()
-            .eventId(row.getLong("id"))
+            .eventId(row.getInt("id"))
             .userId(row.getInt("user_id"))
-            .entityId(row.getLong("entity_id"))
+            .entityId(row.getInt("entity_id"))
             .eventType(EventType.valueOf(row.getString("event_type")))
             .operation(Operation.valueOf(row.getString("operation")))
             .timestamp(row.getTimestamp("event_timestamp").toInstant())

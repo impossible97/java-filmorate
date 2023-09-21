@@ -141,7 +141,7 @@ public class ReviewService {
         }
     }
 
-    private void checkId(long id) {
+    private void checkId(int id) {
         if (!reviewDbStorage.getListId().contains(id)) {
             throw new NotFoundException("Неверный id отзыва");
         }

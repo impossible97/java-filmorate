@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 public class Review {
-    private long reviewId;
+    private int reviewId;
     private String content;
     private Boolean isPositive;
     private Integer userId;

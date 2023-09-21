@@ -14,9 +14,9 @@ import ru.yandex.practicum.filmorate.model.event.Operation;
 @AllArgsConstructor
 @Builder
 public class Event {
-    private Long eventId;
+    private Integer eventId;
     private Integer userId;
-    private Long entityId;
+    private Integer entityId;
     private EventType eventType;
     private Operation operation;
 
