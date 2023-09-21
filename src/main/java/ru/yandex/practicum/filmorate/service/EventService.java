@@ -36,7 +36,6 @@ public class EventService {
         ValidatorHelper.isNotNull(event.getEntityId(), "Entity Id");
         ValidatorHelper.isNotNull(event.getEventType(), "Event Type");
         ValidatorHelper.isNotNull(event.getOperation(), "Operation");
-        ValidatorHelper.isNotNull(event.getTimestamp(), "Timestamp");
         // Suppose that userId and entityId is already validated
     }
 
