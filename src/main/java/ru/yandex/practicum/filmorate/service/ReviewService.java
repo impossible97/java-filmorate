@@ -84,7 +84,7 @@ public class ReviewService {
 
     public Review getReview(int id) {
         checkId(id);
-        log.debug(Integer.toString(id));
+        log.debug(String.valueOf(id));
         return reviewDbStorage.getReview(id);
     }
 
