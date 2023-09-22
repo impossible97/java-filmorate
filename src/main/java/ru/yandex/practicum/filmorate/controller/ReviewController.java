@@ -33,13 +33,13 @@ public class ReviewController {
 
     @DeleteMapping("/reviews/{id}")
     public void deleteReview(@PathVariable int id) {
-        log.info(String.format("DELETE /reviews/%d", id));
+        log.info("DELETE /reviews/{}", id);
         reviewService.deleteReview(id);
     }
 
     @GetMapping("/reviews/{id}")
     public Review getReview(@PathVariable int id) {
-        log.info(String.format("GET /reviews/%d", id));
+        log.info("GET /reviews/{}", id);
         return reviewService.getReview(id);
     }
 
@@ -52,25 +52,25 @@ public class ReviewController {
 
     @PutMapping("/reviews/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
-        log.info(String.format("PUT /reviews/%d/like/%d", id, userId));
+        log.info("PUT /reviews/{}/like/{}", id, userId);
         reviewService.addLike(id, userId);
     }
 
     @PutMapping("/reviews/{id}/dislike/{userId}")
     public void addDislike(@PathVariable int id, @PathVariable int userId) {
-        log.info(String.format("PUT /reviews/%d/dislike/%d", id, userId));
+        log.info("PUT /reviews/{}/dislike/{}", id, userId);
         reviewService.addDislike(id, userId);
     }
 
     @DeleteMapping("/reviews/{id}/like/{userId}")
     public void deleteLike(@PathVariable int id, @PathVariable int userId) {
-        log.info(String.format("DELETE /reviews/%d/like/%d", id, userId));
+        log.info("DELETE /reviews/{}/like/{}", id, userId);
         reviewService.deleteLike(id, userId);
     }
 
     @DeleteMapping("/reviews/{id}/dislike/{userId}")
     public void deleteDislike(@PathVariable int id, @PathVariable int userId) {
-        log.info(String.format("DELETE /reviews/%d/dislike/%d", id, userId));
+        log.info("DELETE /reviews/{}/dislike/{}", id, userId);
         reviewService.deleteDislike(id, userId);
     }
 
