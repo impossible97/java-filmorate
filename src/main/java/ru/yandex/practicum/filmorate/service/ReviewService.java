@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import ru.yandex.practicum.filmorate.model.event.EventType;
 import ru.yandex.practicum.filmorate.model.event.Operation;
 
 @Service
+@Slf4j
 public class ReviewService {
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
     private final ReviewDbStorage reviewDbStorage;
 
@@ -141,7 +142,7 @@ public class ReviewService {
         }
     }
 
-    private void checkId(long id) {
+    private void checkId(int id) {
         if (!reviewDbStorage.getListId().contains(id)) {
             throw new NotFoundException("Неверный id отзыва");
         }

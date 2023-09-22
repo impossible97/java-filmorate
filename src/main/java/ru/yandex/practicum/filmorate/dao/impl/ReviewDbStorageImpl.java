@@ -44,13 +44,13 @@ public class ReviewDbStorageImpl implements ReviewDbStorage {
     }
 
     @Override
-    public List<Long> getListId() {
+    public List<Integer> getListId() {
         String getListId = "SELECT id FROM reviews";
-        return jdbcTemplate.query(getListId, (rs, rowNum) -> rs.getLong("id"));
+        return jdbcTemplate.query(getListId, (rs, rowNum) -> rs.getInt("id"));
     }
 
     @Override
-    public Review getReview(long id) {
+    public Review getReview(int id) {
         String getReview = "SELECT * FROM REVIEWS WHERE id = ?";
         return jdbcTemplate.queryForObject(getReview, this::makeReview, id);
     }
@@ -71,7 +71,7 @@ public class ReviewDbStorageImpl implements ReviewDbStorage {
     @Override
     public Review addReview(Review review) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews").usingGeneratedKeyColumns("id");
-        review.setReviewId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
+        review.setReviewId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).intValue());
         return review;
     }
 

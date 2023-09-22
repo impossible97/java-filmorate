@@ -66,7 +66,7 @@ public class FriendService {
 
         final Event event = Event.builder()
             .userId(id)
-            .entityId(friendId.longValue())
+            .entityId(friendId)
             .eventType(EventType.FRIEND)
             .operation(Operation.ADD)
             .build();
@@ -90,7 +90,7 @@ public class FriendService {
 
         final Event event = Event.builder()
             .userId(id)
-            .entityId(friendId.longValue())
+            .entityId(friendId)
             .eventType(EventType.FRIEND)
             .operation(Operation.REMOVE)
             .build();

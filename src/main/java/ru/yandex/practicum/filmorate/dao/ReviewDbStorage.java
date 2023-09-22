@@ -8,7 +8,7 @@ public interface ReviewDbStorage {
 
     List<Review> getFilmsReviews(int count);
 
-    Review getReview(long id);
+    Review getReview(int id);
 
     void deleteReview(int id);
 
@@ -26,5 +26,5 @@ public interface ReviewDbStorage {
 
     List<Review> getFilmsReviewsById(int filmId, int count);
 
-    List<Long> getListId();
+    List<Integer> getListId();
 }
