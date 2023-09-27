@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,12 +11,16 @@ import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 
 @Service
@@ -27,28 +32,46 @@ public class FilmService {
     private final MPADbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
     private final JdbcTemplate jdbcTemplate;
+    private final EventService eventService;
     static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
     static int MIN_LENGTH = 200;
 
     public void addLike(int filmId, int userId) {
         log.info("Получен PUT-запрос");
-        String query = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        String query = "MERGE INTO likes l " +
+            "USING (VALUES (?, ?)) tmp (film_id, user_id) " +
+            "ON l.film_id = tmp.film_id and l.user_id = tmp.user_id " +
+            "WHEN NOT MATCHED THEN INSERT (film_id, user_id) VALUES (tmp.film_id, tmp.user_id)";
         jdbcTemplate.update(query, filmId, userId);
+
+        final Event event = Event.builder()
+            .userId(userId)
+            .entityId(filmId)
+            .eventType(EventType.LIKE)
+            .operation(Operation.ADD)
+            .build();
+        eventService.raiseEvent(event);
     }
 
     public void deleteLike(int filmId, int userId) {
-        String idQuery = "SELECT user_id FROM likes WHERE user_id = ?";
+        String idQuery = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
         try {
-            if (jdbcTemplate.queryForObject(idQuery, Integer.class, userId) == null) {
-                throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
-            }
+            jdbcTemplate.queryForObject(idQuery, Integer.class, filmId, userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден в likes");
+            throw new NotFoundException("Лайк от пользователя с id " + userId + " на фильм с id " + filmId + " не найден в likes");
         }
 
         log.info("Получен DELETE-запрос");
         String query = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(query, filmId, userId);
+
+        final Event event = Event.builder()
+            .userId(userId)
+            .entityId(filmId)
+            .eventType(EventType.LIKE)
+            .operation(Operation.REMOVE)
+            .build();
+        eventService.raiseEvent(event);
     }
 
     public List<Mpa> findAllMpa() {
@@ -67,8 +90,21 @@ public class FilmService {
         return genreDbStorage.getAllGenres();
     }
 
-    public List<Film> findFilmsByLikes(Integer count) {
-        log.info("Получен GET-запрос");
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        return filmDbStorage.findCommonFilms(userId, friendId);
+    }
+
+    public List<Film> findFilmsByLikes(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
+        log.info("Выполняется вывод самых популярных фильмов");
+        if (genreId.isPresent() && year.isPresent()) {
+            return filmDbStorage.findTopFilms(count, genreId.get(), year.get());
+        }
+        if (genreId.isPresent()) {
+            return filmDbStorage.findTopFilmsByGenre(count, genreId.get());
+        }
+        if (year.isPresent()) {
+            return filmDbStorage.findTopFilmsByYear(count, year.get());
+        }
         return filmDbStorage.findTopFilms(count);
     }
 
@@ -108,5 +144,29 @@ public class FilmService {
     public Film updateFilm(Film film) {
         validate(film);
         return filmDbStorage.updateFIlm(film);
+    }
+
+    public void deleteFilm(int id) {
+        log.info("Выполняется операция удаления фильма");
+        filmDbStorage.deleteFilm(id);
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        log.info("Выполняется поиск фильмов");
+
+        switch (by) {
+            case "title":
+                return filmDbStorage.searchByTitle(query);
+            case "director":
+                return filmDbStorage.searchByDirector(query);
+            case "title,director":
+                return filmDbStorage.searchByTitleAndDirector(query);
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    public List<Film> findRecommendedFilms(int id) {
+        return filmDbStorage.findRecommendedFilms(id);
     }
 }

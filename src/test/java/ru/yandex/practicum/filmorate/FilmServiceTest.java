@@ -1,7 +1,12 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.dao.GenreDbStorage;
+import ru.yandex.practicum.filmorate.dao.MPADbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorageImpl;
 import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorageImpl;
 import ru.yandex.practicum.filmorate.dao.impl.MPADbStorageImpl;
@@ -11,23 +16,44 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(
+        properties = {
+                "spring.datasource.url=jdbc:h2:mem:filmorate-test;MODE=PostgreSQL;"
+        }
+)
 class FilmServiceTest {
 
-    static FilmService filmService = new FilmService(
-            new FilmDbStorageImpl(new JdbcTemplate(), new MPADbStorageImpl(new JdbcTemplate()), new GenreDbStorageImpl(new JdbcTemplate())),
+    // TODO: переделать под Spring DI
+    private static FilmService filmService = new FilmService(
+            new FilmDbStorageImpl(new JdbcTemplate(), new MPADbStorageImpl(new JdbcTemplate()), new GenreDbStorageImpl(new JdbcTemplate()), null),
             new MPADbStorageImpl(new JdbcTemplate()),
             new GenreDbStorageImpl(new JdbcTemplate()),
-            new JdbcTemplate());
+            new JdbcTemplate(),
+            null);
 
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private MPADbStorage mpaDbStorage;
+    @Autowired
+    private GenreDbStorage genreDbStorage;
+    @Autowired
+    private FilmDbStorageImpl filmDbStorage;
+    @Autowired
+    private FilmService myFilmService;
+
+    private static final Integer FILM_ID = 1;
 
     @Test
     void validateFilmOk() {
         Film film = new Film();
-        film.setId(1);
+        film.setId(FILM_ID);
         film.setName("Name");
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
@@ -37,6 +63,29 @@ class FilmServiceTest {
         film.setMpa(mpa);
 
         filmService.validate(film);
+    }
+
+    @Test
+    @Sql({"/data-test.sql"})
+    void createFilmSucceed() {
+        Film expected = new Film();
+        expected.setId(FILM_ID);
+        expected.setName("Name");
+        expected.setDescription("Description");
+        expected.setReleaseDate(LocalDate.of(2023, 1, 1));
+        expected.setDuration(300);
+        expected.setMpa(mpaDbStorage.findMpaById(1000));
+        expected.setGenres(new LinkedHashSet<>(List.of(genreDbStorage.getAllGenres().get(0))));
+
+        myFilmService.createFilm(expected);
+        Film found = myFilmService.getFilm(FILM_ID);
+        assertNotNull(found);
+        assertEquals(expected.getName(), found.getName());
+        assertEquals(expected.getDescription(), found.getDescription());
+        assertEquals(expected.getDuration(), found.getDuration());
+        assertEquals(expected.getReleaseDate(), found.getReleaseDate());
+        assertEquals(1, found.getGenres().size());
+        assertEquals(1000, found.getMpa().getId());
     }
 
     @Test

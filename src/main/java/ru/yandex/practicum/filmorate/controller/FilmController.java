@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +45,6 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-
     @PutMapping("/films/{id}/like/{userId}")
     @ResponseBody
     public void addLike(@PathVariable int id, @PathVariable int userId) {
@@ -59,7 +59,26 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     @ResponseBody
-    public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count) {
-        return filmService.findFilmsByLikes(count);
+    public List<Film> findFilmsByLikes(@RequestParam(defaultValue = "10") final Integer count,
+                                       @RequestParam("genreId") final Optional<Integer> genreId,
+                                       @RequestParam("year") final Optional<Integer> year) {
+        return filmService.findFilmsByLikes(count, genreId, year);
+    }
+
+    @GetMapping("/films/search")
+    public List<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
+
+    @GetMapping("/films/common")
+    @ResponseBody
+    public List<Film> findCommonFilms(@RequestParam("userId") int userId, @RequestParam("friendId") int friendId) {
+        return filmService.findCommonFilms(userId, friendId);
+    }
+
+    @DeleteMapping("/films/{id}")
+    @ResponseBody
+    public void deleteFilm(@PathVariable int id) {
+        filmService.deleteFilm(id);
     }
 }

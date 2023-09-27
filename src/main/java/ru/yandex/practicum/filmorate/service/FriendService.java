@@ -6,11 +6,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 
 @Service
 @AllArgsConstructor
@@ -19,9 +22,14 @@ public class FriendService {
 
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
+    private final EventService eventService;
 
-    public List<User> findFriendsByUserId(long userId) {
+    public List<User> findFriendsByUserId(int userId) {
         log.info("Получен GET-запрос");
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + userId + " не найден!");
+        }
         String query = "SELECT friend_id FROM friendship WHERE user_id = ?";
         List<Integer> friendsId = jdbcTemplate.queryForList(query, Integer.class, userId);
 
@@ -55,6 +63,14 @@ public class FriendService {
         String query = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
 
         jdbcTemplate.update(query, id, friendId);
+
+        final Event event = Event.builder()
+            .userId(id)
+            .entityId(friendId)
+            .eventType(EventType.FRIEND)
+            .operation(Operation.ADD)
+            .build();
+        eventService.raiseEvent(event);
     }
 
     public void deleteFriend(Integer id, Integer friendId) {
@@ -71,5 +87,13 @@ public class FriendService {
 
         String query = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(query, id, friendId);
+
+        final Event event = Event.builder()
+            .userId(id)
+            .entityId(friendId)
+            .eventType(EventType.FRIEND)
+            .operation(Operation.REMOVE)
+            .build();
+        eventService.raiseEvent(event);
     }
 }
